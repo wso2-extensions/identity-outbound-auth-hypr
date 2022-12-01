@@ -24,12 +24,10 @@ package org.wso2.carbon.identity.application.authenticator.hypr.rest.common;
 public class HYPRConstants {
 
     public static final String CORRELATION_ID_KEY = "Correlation-ID";
-
     public static final String IDP_NAME = "HYPR";
     public static final String TENANT_DOMAIN = "carbon.super";
     public static final String BASE_URL = "baseUrl";
     public static final String API_TOKEN = "apiToken";
-
     public static final String HYPR_API_PREFIX = "HYPR-API-";
     public static final String AUTH_STATUS = "authStatus";
     public static final String AUTH_REQUEST_ID = "authRequestId";
@@ -74,25 +72,30 @@ public class HYPRConstants {
         private final String description;
 
         ErrorMessage(String code, String message, String description) {
+
             this.code = code;
             this.message = message;
             this.description = description;
         }
 
         public String getCode() {
+
             return HYPR_API_PREFIX + code;
         }
 
         public String getMessage() {
+
             return message;
         }
 
         public String getDescription() {
+
             return description;
         }
 
         @Override
         public String toString() {
+
             return code + " | " + message;
         }
     }

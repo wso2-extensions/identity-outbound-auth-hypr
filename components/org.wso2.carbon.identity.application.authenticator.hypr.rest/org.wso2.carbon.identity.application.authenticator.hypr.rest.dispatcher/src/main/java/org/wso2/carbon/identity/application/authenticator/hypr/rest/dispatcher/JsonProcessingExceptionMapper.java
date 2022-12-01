@@ -21,8 +21,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
-import static org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.ErrorConstants.*;
-
+import static org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.ErrorConstants.ERROR_CODE;
+import static org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.ErrorConstants.ERROR_DESCRIPTION;
+import static org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.ErrorConstants.ERROR_MESSAGE;
 
 /**
  * Handles exceptions when an incorrect json requests body is received.

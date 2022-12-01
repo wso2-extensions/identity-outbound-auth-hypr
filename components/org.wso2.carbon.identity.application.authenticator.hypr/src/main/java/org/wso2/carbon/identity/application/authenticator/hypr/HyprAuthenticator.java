@@ -377,7 +377,6 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             }
         }
         return machineId;
-
     }
 
     /**
@@ -388,6 +387,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      * @throws HYPRAuthnFailedException Exception while extracting the request ID.
      */
     private static String getHyprRequestId(HttpResponse hyprPushNotificationResponse) throws HYPRAuthnFailedException {
+
         try {
             String requestId = null;
             JsonNode pushNotificationResponseJsonNode = HYPRWebUtils.toJsonNode(hyprPushNotificationResponse);
@@ -430,8 +430,8 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
 
     @Override
     public AuthenticatorFlowStatus process(HttpServletRequest request, HttpServletResponse response,
-                                           AuthenticationContext context) throws AuthenticationFailedException,
-            LogoutFailedException {
+                                           AuthenticationContext context)
+            throws AuthenticationFailedException, LogoutFailedException {
 
         if (context.isLogoutRequest()) {
             // if the logout request comes, then no need to go through and complete the flow.
@@ -462,7 +462,6 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             } else if (authStatus.equals(HYPR.AuthenticationStatus.FAILED.getName())) {
                 handleAuthenticationIncompleteState(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
                 return AuthenticatorFlowStatus.INCOMPLETE;
-
             }
         } else {
             initiateAuthenticationRequest(request, response, context);

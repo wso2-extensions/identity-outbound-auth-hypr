@@ -16,15 +16,17 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authenticator.hypr.rest.common.error.ErrorDTO;
 import org.wso2.carbon.identity.application.authenticator.hypr.rest.common.error.ErrorResponse;
 
+import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
-import java.util.Set;
 
-import static org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.ErrorConstants.*;
+import static org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.ErrorConstants.ERROR_CODE;
+import static org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.ErrorConstants.ERROR_DESCRIPTION;
+import static org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.ErrorConstants.ERROR_MESSAGE;
 
 /**
  * Map input validation exceptions.

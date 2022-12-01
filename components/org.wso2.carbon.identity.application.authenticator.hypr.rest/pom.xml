@@ -36,5 +36,4 @@
         <module>org.wso2.carbon.identity.application.authenticator.hypr.rest.common</module>
         <module>org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher</module>
     </modules>
-
 </project>

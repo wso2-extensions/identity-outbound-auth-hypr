@@ -56,7 +56,6 @@ public class ServerHYPRAuthenticatorService {
      * @param sessionKey The session key assigned for the user by the framework.
      */
     public StatusResponse getAuthenticationStatus(String sessionKey) {
-        //{{baseUrl}}/rp/api/oob/client/authentication/requests/{{requestId}}
 
         try {
             //Get the authentication context based on the session key.
@@ -81,6 +80,7 @@ public class ServerHYPRAuthenticatorService {
             }
 
             // Make an API call to get the authentication status from the HYPR server.
+            // URL : {{baseUrl}}/rp/api/oob/client/authentication/requests/{{requestId}}
             String authenticationStatusPollURL = String.format("%s%s%s",
                     hyprConfigurations.get(HYPRConstants.BASE_URL),
                     HYPRConstants.HYPR_AUTH_STATUS_CHECK_PATH,
@@ -205,25 +205,11 @@ public class ServerHYPRAuthenticatorService {
         return rootNode;
     }
 
-    /**
-     * Handle invalid input.
-     *
-     * @param errorEnum
-     * @param data
-     * @return APIError
-     */
     public APIError handleInvalidInput(HYPRConstants.ErrorMessage errorEnum, String... data) {
 
         return handleError(Response.Status.BAD_REQUEST, errorEnum);
     }
 
-    /**
-     * Handle Exceptions.
-     *
-     * @param e
-     * @param errorEnum
-     * @return
-     */
     private APIError handleException(Exception e, HYPRConstants.ErrorMessage errorEnum, boolean isClientException,
                                      String... data) {
 
@@ -243,24 +229,11 @@ public class ServerHYPRAuthenticatorService {
 
     }
 
-    /**
-     * Handle User errors.
-     *
-     * @param status
-     * @param error
-     * @return
-     */
     private APIError handleError(Response.Status status, HYPRConstants.ErrorMessage error) {
 
         return new APIError(status, getErrorBuilder(error).build());
     }
 
-    /**
-     * Get ErrorResponse Builder for Error enum.
-     *
-     * @param errorEnum
-     * @return
-     */
     private ErrorResponse.Builder getErrorBuilder(HYPRConstants.ErrorMessage errorEnum) {
 
         return new ErrorResponse.Builder().withCode(errorEnum.getCode()).withMessage(errorEnum.getMessage())

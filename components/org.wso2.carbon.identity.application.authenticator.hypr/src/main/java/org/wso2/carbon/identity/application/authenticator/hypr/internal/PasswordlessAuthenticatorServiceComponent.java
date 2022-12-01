@@ -27,7 +27,9 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.wso2.carbon.identity.application.authentication.framework.ApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authenticator.hypr.HyprAuthenticator;
 
-/***/
+/**
+ * Service component class for the QR Authenticator initialization.
+ */
 @Component(
         name = "hypr.federated.authenticator",
         immediate = true)

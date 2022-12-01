@@ -27,6 +27,7 @@ public class HyprAuthenticatorConstants {
      * Includes the error codes and the corresponding error messages.
      */
     public enum ErrorMessages {
+
         AUTHENTICATION_FAILED_REDIRECTING_LOGIN_FAILURE("HYPR-65001",
                 "Authentication failed when redirecting the user to the login page."),
         AUTHENTICATION_FAILED_BUILDING_LOGIN_URL_FAILURE("HYPR-65002",
@@ -130,6 +131,7 @@ public class HyprAuthenticatorConstants {
          * Object holding authentication mobile response status.
          */
         public enum AuthenticationStatus {
+
             INVALID_REQUEST("INVALID_REQUEST", "Invalid username provided"),
             PENDING("PENDING", "Authentication with HYPR is in progress. Awaiting for the user to " +
                     "authenticate via the registered smart device"),

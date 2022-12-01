@@ -105,7 +105,5 @@
             <version>5.25.14</version>
             <scope>compile</scope>
         </dependency>
-
     </dependencies>
-
 </project>

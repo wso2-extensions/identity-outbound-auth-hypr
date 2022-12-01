@@ -81,6 +81,3 @@ Add the following lines for setting access control for hypr rest api
   <Resource context="(.*)/api/hypr/v1/authentication/(.*)" secured="false" http-method="GET"/>
 </ResourceAccessControl>
 ```
-
-
-

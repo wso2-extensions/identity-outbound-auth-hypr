@@ -22,9 +22,7 @@ public class Util {
     /**
      * Constructor for Util class.
      */
-    private Util() {
-
-    }
+    private Util() {}
 
     /**
      * Get correlation id of current thread.

@@ -42,5 +42,4 @@ public class HYPRAuthnFailedException extends AuthenticationFailedException {
 
         super(code, message);
     }
-
 }

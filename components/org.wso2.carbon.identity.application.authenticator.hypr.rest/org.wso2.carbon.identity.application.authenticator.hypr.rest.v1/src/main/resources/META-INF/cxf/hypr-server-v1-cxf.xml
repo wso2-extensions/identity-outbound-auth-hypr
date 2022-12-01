@@ -20,4 +20,3 @@
     <bean class="org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.core.ServerHYPRAuthenticatorService"/>
     <bean class="org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.impl.AuthenticationApiServiceImpl"/>
 </beans>
-
