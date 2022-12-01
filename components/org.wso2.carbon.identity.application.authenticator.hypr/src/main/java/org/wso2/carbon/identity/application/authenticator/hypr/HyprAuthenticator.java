@@ -469,20 +469,20 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             String sessionDataKey = request.getParameter(HYPR.SESSION_DATA_KEY);
             String authStatus = (String) context.getProperty(HYPR.AUTH_STATUS);
 
-            if (authStatus.equals(HYPR.AuthenticationStatus.COMPLETED.getName())) {
+            if (HYPR.AuthenticationStatus.COMPLETED.getName().equals(authStatus)) {
                 processAuthenticationResponse(request, response, context);
                 return AuthenticatorFlowStatus.SUCCESS_COMPLETED;
 
-            } else if (authStatus.equals(HYPR.AuthenticationStatus.PENDING.getName())) {
-                handleAuthenticationIncompleteState(response, sessionDataKey, HYPR.AuthenticationStatus.PENDING);
+            } else if (HYPR.AuthenticationStatus.PENDING.getName().equals(authStatus)) {
+                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.PENDING);
                 return AuthenticatorFlowStatus.INCOMPLETE;
 
-            } else if (authStatus.equals(HYPR.AuthenticationStatus.CANCELED.getName())) {
-                handleAuthenticationIncompleteState(response, sessionDataKey, HYPR.AuthenticationStatus.CANCELED);
+            } else if (HYPR.AuthenticationStatus.CANCELED.getName().equals(authStatus)) {
+                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.CANCELED);
                 return AuthenticatorFlowStatus.INCOMPLETE;
 
-            } else if (authStatus.equals(HYPR.AuthenticationStatus.FAILED.getName())) {
-                handleAuthenticationIncompleteState(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
+            } else if (HYPR.AuthenticationStatus.FAILED.getName().equals(authStatus)) {
+                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
                 return AuthenticatorFlowStatus.INCOMPLETE;
             }
         } else {
@@ -491,22 +491,5 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             return AuthenticatorFlowStatus.INCOMPLETE;
         }
         return super.process(request, response, context);
-    }
-
-    /**
-     * Retrieve the user session context stored in the HYPR context manager.
-     *
-     * @param response             The response that is received to the authenticator.
-     * @param sessionDataKey       The session data key extracted from the request.
-     * @param authenticationStatus An AuthenticationStatus object which specifies the current status of the
-     *                             authentication
-     * @throws HYPRAuthnFailedException Exception thrown when redirecting the user to login page on which the error
-     *                                  messages are displayed.
-     */
-    private void handleAuthenticationIncompleteState(HttpServletResponse response, String sessionDataKey,
-                                                     HYPR.AuthenticationStatus authenticationStatus)
-            throws HYPRAuthnFailedException {
-
-        redirectHYPRLoginPage(response, sessionDataKey, authenticationStatus);
     }
 }

@@ -98,6 +98,7 @@ public class HYPRWebUtils {
     }
 
     private static HttpResponse toHttpResponse(final CloseableHttpResponse response) throws IOException {
+
         final HttpResponse result = new BasicHttpResponse(response.getStatusLine());
         if (response.getEntity() != null) {
             result.setEntity(new BufferedHttpEntity(response.getEntity()));

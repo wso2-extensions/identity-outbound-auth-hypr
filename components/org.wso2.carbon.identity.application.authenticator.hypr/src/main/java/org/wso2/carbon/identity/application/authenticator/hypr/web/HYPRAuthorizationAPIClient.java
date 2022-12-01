@@ -41,6 +41,7 @@ public class HYPRAuthorizationAPIClient {
     private final String apiToken;
 
     public HYPRAuthorizationAPIClient(final String baseUrl, final String appId, final String apiToken) {
+
         this.baseUrl = baseUrl;
         this.appId = appId;
         this.apiToken = apiToken;
@@ -57,8 +58,8 @@ public class HYPRAuthorizationAPIClient {
      *                                  registered devices via the api call
      */
     public HttpResponse getRegisteredDevicesRequest(String username) throws HYPRAuthnFailedException {
-        //{{baseUrl}}/rp/ api/oob/client/authentication/{{appId}}/{{username}}/devices
-        // TODO : Look into a way to use the URLBuilder
+
+        // Device info URL : {{baseUrl}}/rp/ api/oob/client/authentication/{{appId}}/{{username}}/devices
         String deviceInfoURL = String.format("%s%s%s/%s/devices", this.baseUrl,
                 HyprAuthenticatorConstants.HYPR.HYPR_USER_DEVICE_INFO_PATH, this.appId, username);
 
