@@ -33,36 +33,32 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.util.EntityUtils;
-
 import org.wso2.carbon.identity.application.authenticator.hypr.HyprAuthenticatorConstants;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 import java.util.Random;
-
 
 /**
  * The HYPRWebUtils class contains all the general helper functions required by the HYPR Authenticator.
- * **/
+ */
 public class HYPRWebUtils {
 
     /**
      * Send an HTTP Get request.
      *
-     * @param hyprConfiguration     A hashmap composed of HYPR configurations.
-     * @param requestURL            The URL to which the GET request should be sent.
+     * @param apiToken   API token provided by HYPR.
+     * @param requestURL The URL to which the GET request should be sent.
      * @return httpResponse         The response received from the HTTP call.
-     * @throw IOException
+     * @throws IOException Exception thrown when an error occurred during converting the HTTPResponse to a jsonNode.
      */
-    public static HttpResponse jsonGet(final Map<String, String> hyprConfiguration, final String requestURL)
-            throws IOException {
+    public static HttpResponse jsonGet(String apiToken, String requestURL) throws IOException {
 
         HttpGet request = new HttpGet(requestURL);
-        request.addHeader("Authorization",
-                "Bearer " + hyprConfiguration.get(HyprAuthenticatorConstants.HYPR.HYPR_API_TOKEN));
+        request.addHeader(HyprAuthenticatorConstants.HTTP.AUTHORIZATION,
+                HyprAuthenticatorConstants.HTTP.BEARER + apiToken);
 
         HttpResponse httpResponse;
 
@@ -72,25 +68,24 @@ public class HYPRWebUtils {
         }
 
         return httpResponse;
-
     }
 
     /**
      * Send an HTTP POST request.
      *
-     * @param hyprConfiguration     A hashmap composed of HYPR configurations.
-     * @param requestURL            The URL to which the POST request should be sent.
-     * @param requestBody           A hashmap that includes the parameters to be sent through the request.
+     * @param apiToken    API token provided by HYPR.
+     * @param requestURL  The URL to which the POST request should be sent.
+     * @param requestBody A hashmap that includes the parameters to be sent through the request.
      * @return httpResponse         The response received from the HTTP call.
-     * @throw IOException
+     * @throws IOException Exception thrown when an error occurred during converting the HTTPResponse to a jsonNode.
      */
-    public static HttpResponse jsonPost(final Map<String, String> hyprConfiguration, final String requestURL,
-                                        final String requestBody)throws IOException {
+    public static HttpResponse jsonPost(String apiToken, String requestURL, String requestBody) throws IOException {
 
         HttpPost request = new HttpPost(requestURL);
-        request.addHeader("Authorization",
-                "Bearer " + hyprConfiguration.get(HyprAuthenticatorConstants.HYPR.HYPR_API_TOKEN));
-        request.setHeader("Content-Type", "application/json");
+        request.addHeader(HyprAuthenticatorConstants.HTTP.AUTHORIZATION,
+                HyprAuthenticatorConstants.HTTP.BEARER + apiToken);
+        request.setHeader(HyprAuthenticatorConstants.HTTP.CONTENT_TYPE,
+                HyprAuthenticatorConstants.HTTP.APPLICATION_JSON);
         request.setEntity(new StringEntity(requestBody, ContentType.APPLICATION_JSON));
 
         HttpResponse httpResponse;
@@ -99,12 +94,10 @@ public class HYPRWebUtils {
              CloseableHttpResponse response = client.execute(request)) {
             httpResponse = toHttpResponse(response);
         }
-
         return httpResponse;
-
     }
 
-    private static HttpResponse toHttpResponse (final CloseableHttpResponse response) throws IOException {
+    private static HttpResponse toHttpResponse(final CloseableHttpResponse response) throws IOException {
         final HttpResponse result = new BasicHttpResponse(response.getStatusLine());
         if (response.getEntity() != null) {
             result.setEntity(new BufferedHttpEntity(response.getEntity()));
@@ -116,7 +109,7 @@ public class HYPRWebUtils {
      * Convert the HTTPResponse to a json node.
      *
      * @param response A HTTPResponse object received from API call.
-     * @throw IOException
+     * @throws IOException Exception thrown when an error occurred during converting the HTTPResponse to a jsonNode.
      */
     public static JsonNode toJsonNode(HttpResponse response) throws IOException {
 
@@ -133,20 +126,22 @@ public class HYPRWebUtils {
     /**
      * Generate  a random pin.
      *
-     * @return              A randomly generated pin.
+     * @return A randomly generated pin.
      */
     public static int generateRandomPIN() {
+
         return 100000 + new Random().nextInt(900000);
     }
 
     /**
      * Generate the hashcode.
      *
-     * @param stringToHash  The string on which the hash needs to be generated.
+     * @param stringToHash The string on which the hash needs to be generated.
      * @return hashCode     The hash code  of the provided text.
-     * @throws  NoSuchAlgorithmException
+     * @throws NoSuchAlgorithmException Exception thrown when an error occurred during getting the SHA-256 algorithm.
      */
     public static String doSha256(final String stringToHash) throws NoSuchAlgorithmException {
+
         final MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(stringToHash.getBytes());
         final byte[] bytes = md.digest();
@@ -160,6 +155,4 @@ public class HYPRWebUtils {
         }
         return hexString.toString();
     }
-
-
 }

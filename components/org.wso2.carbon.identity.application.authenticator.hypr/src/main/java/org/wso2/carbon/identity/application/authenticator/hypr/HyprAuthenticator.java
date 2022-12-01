@@ -163,7 +163,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      * @param request  The request that is received by the authenticator.
      * @param response Appends the authorized URL once a valid authorized URL is built.
      * @param context  The Authentication context received by the authenticator.
-     * @throws AuthenticationFailedException Exception while redirecting the user to the login page.
+     * @throws AuthenticationFailedException Exception thrown while redirecting the user to the login page.
      */
     @Override
     protected void initiateAuthenticationRequest(HttpServletRequest request, HttpServletResponse response,
@@ -184,7 +184,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      * @param response             The response that is received to the authenticator.
      * @param sessionDataKey       The session data key extracted from the request.
      * @param authenticationStatus The authentication status of the user when authenticating via HYPR.
-     * @throws HYPRAuthnFailedException Exception while redirecting user to login page.
+     * @throws HYPRAuthnFailedException Exception thrown while redirecting user to login page.
      */
     private void redirectHYPRLoginPage(HttpServletResponse response, String sessionDataKey,
                                        HYPR.AuthenticationStatus authenticationStatus)
@@ -226,58 +226,72 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      * @param request  The request that is received by the authenticator.
      * @param response The response that is received to the authenticator.
      * @param context  The Authentication context received by the authenticator.
-     * @throws AuthenticationFailedException Exception while sending push notification to the registered device.
+     * @throws AuthenticationFailedException Exception thrown while sending push notification to the registered device.
      */
     private void initiateHYPRAuthenticationRequest(HttpServletRequest request, HttpServletResponse response,
                                                    AuthenticationContext context) throws AuthenticationFailedException {
 
-        try {
 
-            String username = request.getParameter(HYPR.USERNAME);
-            String sessionDataKey = request.getParameter(HYPR.SESSION_DATA_KEY);
+        String username = request.getParameter(HYPR.USERNAME);
+        String sessionDataKey = request.getParameter(HYPR.SESSION_DATA_KEY);
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Initiated the authentication process for the user : " + username);
-            }
-
-            HYPRAuthorizationAPIClient hyprAuthorizationAPIClient = getHYPRAPIClient(context);
-
-            // Get the registered devices.
-            ArrayNode registeredDevices = getRegisteredDevices(username, hyprAuthorizationAPIClient);
-
-            // If an empty array received for the registered devices redirect user back to the login page and
-            // display "Invalid username" since a HYPR user cannot exist without a set of registered devices.
-            if (registeredDevices.isEmpty()) {
-                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.INVALID_REQUEST);
-                return;
-            }
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Successfully retrieved the registered devices for the user : " + username);
-            }
-
-            // Extract the user specific machineId.
-            String machineId = getMachineId(registeredDevices);
-
-            // Send a push notification and extract the requestId received from the HYPR server.
-            String requestId = getRequestIDFromSendPushNotification(username, machineId, hyprAuthorizationAPIClient);
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Successfully sent a push notification for the registered devices of the user" + username);
-            }
-
-            // Store the HYPR context information.
-            context.setProperty(HYPR.AUTH_STATUS, HYPR.AuthenticationStatus.PENDING.getName());
-            context.setProperty(HYPR.AUTH_REQUEST_ID, requestId);
-            context.setProperty(HYPR.USERNAME, username);
-
-            // Inform the user that the push notification has been sent to the registered device.
-            redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.PENDING);
-
-        } catch (IOException e) {
-            String errorMessage = "Error occurred when trying to .";
-            throw new AuthenticationFailedException(errorMessage, e);
+        if (StringUtils.isBlank(username)) {
+            redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.INVALID_REQUEST);
+            return;
         }
+
+        // Create HYPRAuthorizationAPIClient to make rest api calls.
+        HYPRAuthorizationAPIClient hyprAuthorizationAPIClient = getHYPRAPIClient(context);
+
+        // Get the registered devices.
+        ArrayNode registeredDevices = getRegisteredDevices(username, hyprAuthorizationAPIClient);
+
+        // If an empty array received for the registered devices redirect user back to the login page and
+        // display "Invalid username" since a HYPR user cannot exist without a set of registered devices.
+        if (registeredDevices.isEmpty()) {
+            redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.INVALID_REQUEST);
+            return;
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Successfully retrieved the registered devices for the user : " + username);
+        }
+
+        // Extract the user specific machineId.
+        String machineId = getMachineId(registeredDevices);
+
+        if (StringUtils.isBlank(machineId)) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Retrieved machine ID for the username " + username + " is either null or empty.");
+            }
+            redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
+            return;
+        }
+
+        // Send a push notification and extract the requestId received from the HYPR server.
+        String requestId = getRequestIDFromSendPushNotification(username, machineId, hyprAuthorizationAPIClient);
+
+        if (StringUtils.isBlank(requestId)) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Retrieved request ID for the authentication request for the username " + username +
+                        " is either null or empty.");
+            }
+            redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
+            return;
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Successfully sent a push notification for the registered devices of the user" + username);
+        }
+
+        // Store the HYPR context information.
+        context.setProperty(HYPR.AUTH_STATUS, HYPR.AuthenticationStatus.PENDING.getName());
+        context.setProperty(HYPR.AUTH_REQUEST_ID, requestId);
+        context.setProperty(HYPR.USERNAME, username);
+
+        // Inform the user that the push notification has been sent to the registered device.
+        redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.PENDING);
+
     }
 
     /**
@@ -294,19 +308,19 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
         String appId = authenticatorProperties.get(HYPR.APP_ID);
         String apiToken = authenticatorProperties.get(HYPR.HYPR_API_TOKEN);
 
-        if (!StringUtils.isNotBlank(baseUrl)) {
+        if (StringUtils.isBlank(baseUrl)) {
             throw new HYPRAuthnFailedException(
                     ErrorMessages.HYPR_BASE_URL_INVALID_FAILURE.getCode(),
                     ErrorMessages.HYPR_BASE_URL_INVALID_FAILURE.getMessage());
         }
 
-        if (!StringUtils.isNotBlank(appId)) {
+        if (StringUtils.isBlank(appId)) {
             throw new HYPRAuthnFailedException(
                     ErrorMessages.HYPR_APP_ID_INVALID_FAILURE.getCode(),
                     ErrorMessages.HYPR_APP_ID_INVALID_FAILURE.getMessage());
         }
 
-        if (!StringUtils.isNotBlank(apiToken)) {
+        if (StringUtils.isBlank(apiToken)) {
             // TODO: Check for the token expiry. Redirect to the error page
             // Authentication failed. Contact the admin ....
             throw new HYPRAuthnFailedException(
@@ -322,20 +336,28 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      *
      * @param username                   Username provided by the user.
      * @param hyprAuthorizationAPIClient An instance of a HYPRAuthorizationAPIClient class.
-     * @return registeredDevices               A JsonNode of the user registered devices.
+     * @return registeredDevices               An ArrayNode of the user registered devices.
+     * @throws HYPRAuthnFailedException Throws an exception when there is an error occurred when retrieving the
+     *                                  registered devices.
      */
     private ArrayNode getRegisteredDevices(String username, HYPRAuthorizationAPIClient hyprAuthorizationAPIClient)
-            throws HYPRAuthnFailedException, IOException {
+            throws HYPRAuthnFailedException {
 
-        HttpResponse hyprRegisteredDevicesResponse =
-                hyprAuthorizationAPIClient.getRegisteredDevicesRequest(username);
+        try {
+            HttpResponse hyprRegisteredDevicesResponse =
+                    hyprAuthorizationAPIClient.getRegisteredDevicesRequest(username);
 
-        JsonNode registeredDevices = HYPRWebUtils.toJsonNode(hyprRegisteredDevicesResponse);
+            JsonNode registeredDevices = HYPRWebUtils.toJsonNode(hyprRegisteredDevicesResponse);
+            if (registeredDevices.isArray() && !registeredDevices.isEmpty()) {
+                return (ArrayNode) registeredDevices;
+            }
 
-        if (registeredDevices.isArray() && !registeredDevices.isEmpty()) {
-            return (ArrayNode) registeredDevices;
+            return new ObjectMapper().createArrayNode();
+        } catch (IOException e) {
+            throw new HYPRAuthnFailedException(
+                    ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE.getCode(),
+                    ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE.getMessage(), e);
         }
-        return new ObjectMapper().createArrayNode();
     }
 
     /**
@@ -384,7 +406,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      * request.
      *
      * @param hyprPushNotificationResponse The response that is received when requested to send push notification.
-     * @throws HYPRAuthnFailedException Exception while extracting the request ID.
+     * @throws HYPRAuthnFailedException Exception thrown while extracting the request ID.
      */
     private static String getHyprRequestId(HttpResponse hyprPushNotificationResponse) throws HYPRAuthnFailedException {
 
@@ -424,7 +446,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
         context.setSubject(authenticatedUser);
 
         if (LOG.isDebugEnabled()) {
-            LOG.info("Successfully logged in the user : " + username);
+            LOG.debug("Successfully logged in the user : " + username);
         }
     }
 
@@ -438,12 +460,12 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             return AuthenticatorFlowStatus.SUCCESS_COMPLETED;
 
         } else if (request.getParameterMap().containsKey(HYPR.USERNAME)) {
-            // if the login form submission request comes, then go through this flow
+            // if the login form submission request comes, then go through this flow.
             initiateHYPRAuthenticationRequest(request, response, context);
             return AuthenticatorFlowStatus.INCOMPLETE;
 
         } else if (context.getProperty(HYPR.AUTH_STATUS) != null) {
-            // if intermediate authentication request comes, then go through this flow
+            // if intermediate authentication request comes, then go through this flow.
             String sessionDataKey = request.getParameter(HYPR.SESSION_DATA_KEY);
             String authStatus = (String) context.getProperty(HYPR.AUTH_STATUS);
 
@@ -464,6 +486,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                 return AuthenticatorFlowStatus.INCOMPLETE;
             }
         } else {
+            // Redirect the user to the login page.
             initiateAuthenticationRequest(request, response, context);
             return AuthenticatorFlowStatus.INCOMPLETE;
         }
@@ -477,7 +500,8 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      * @param sessionDataKey       The session data key extracted from the request.
      * @param authenticationStatus An AuthenticationStatus object which specifies the current status of the
      *                             authentication
-     * @throws HYPRAuthnFailedException
+     * @throws HYPRAuthnFailedException Exception thrown when redirecting the user to login page on which the error
+     *                                  messages are displayed.
      */
     private void handleAuthenticationIncompleteState(HttpServletResponse response, String sessionDataKey,
                                                      HYPR.AuthenticationStatus authenticationStatus)

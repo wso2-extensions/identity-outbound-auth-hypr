@@ -46,7 +46,7 @@ public class HyprAuthenticatorConstants {
         HYPR_BASE_URL_INVALID_FAILURE("HYPR-65008", "Provided HYPR base URL is invalid."),
         HYPR_APP_ID_INVALID_FAILURE("HYPR-65009", "Provided HYPR app ID is invalid."),
         HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE("HYPR-65010",
-                "Provided HYPR endpoint API token invalid or expired");
+                "Provided HYPR endpoint API token is either invalid or expired");
 
         private final String code;
         private final String message;
@@ -91,6 +91,18 @@ public class HyprAuthenticatorConstants {
     }
 
     /**
+     * Includes the HTTP header parameters.
+     */
+    public static class HTTP {
+
+        // HTTP header parameters
+        public static final String AUTHORIZATION = "Authorization";
+        public static final String BEARER = "Bearer ";
+        public static final String CONTENT_TYPE = "Content-Type";
+        public static final String APPLICATION_JSON = "application/json";
+    }
+
+    /**
      * Includes the HYPR authentication and registration related constants.
      */
     public static class HYPR {
@@ -121,11 +133,9 @@ public class HyprAuthenticatorConstants {
         // Authentication API paths
         public static final String HYPR_USER_DEVICE_INFO_PATH = "/rp/api/oob/client/authentication/";
         public static final String HYPR_AUTH_PATH = "/rp/api/oob/client/authentication/requests";
-        public static final String HYPR_AUTH_POLL_PATH = "/rp/api/oob/client/authentication/requests/";
 
         //Page paths
         public static final String HYPR_LOGIN_PAGE = "/authenticationendpoint/hyprlogin.jsp";
-        public static final String FORWARD_SLASH = "/";
 
         /**
          * Object holding authentication mobile response status.

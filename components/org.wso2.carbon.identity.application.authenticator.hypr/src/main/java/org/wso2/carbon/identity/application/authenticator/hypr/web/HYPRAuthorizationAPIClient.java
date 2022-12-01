@@ -31,94 +31,85 @@ import java.util.Map;
 
 /**
  * The HYPRAuthorizationAPIClient class contains all the functions related to handling the API calls to the HYPR server.
-**/
- public class HYPRAuthorizationAPIClient {
+ **/
+public class HYPRAuthorizationAPIClient {
 
     private final ObjectMapper objectMapper;
     // HYPR Configuration parameters
-    private final Map<String, String> hyprConfiguration;
+    private final String baseUrl;
+    private final String appId;
+    private final String apiToken;
 
     public HYPRAuthorizationAPIClient(final String baseUrl, final String appId, final String apiToken) {
-        this.hyprConfiguration = new HashMap<>();
-        this.hyprConfiguration.put(HyprAuthenticatorConstants.HYPR.BASE_URL, baseUrl);
-        this.hyprConfiguration.put(HyprAuthenticatorConstants.HYPR.APP_ID, appId);
-        this.hyprConfiguration.put(HyprAuthenticatorConstants.HYPR.HYPR_API_TOKEN, apiToken);
+        this.baseUrl = baseUrl;
+        this.appId = appId;
+        this.apiToken = apiToken;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
-
-    public String getBaseUrl() {
-        return this.hyprConfiguration.get(HyprAuthenticatorConstants.HYPR.BASE_URL);
-    }
-
-    public String getAppId() {
-        return this.hyprConfiguration.get(HyprAuthenticatorConstants.HYPR.APP_ID);
-    }
-
-    public String getApiToken() {
-        return this.hyprConfiguration.get(HyprAuthenticatorConstants.HYPR.HYPR_API_TOKEN);
-    }
-
-    public Map<String, String> getHyprConfiguration() {
-        return this.hyprConfiguration;
     }
 
     /**
      * Call the HYPR server API to retrieve the registered devices.
      *
-     * @param username          The username provided by the user.
+     * @param username The username provided by the user.
      * @return response         A HTTPResponse object.
-     * @throws HYPRAuthnFailedException
-     * */
-    public HttpResponse getRegisteredDevicesRequest (String username) throws HYPRAuthnFailedException {
+     * @throws HYPRAuthnFailedException Exception throws when there is an error occurred when retrieving the
+     *                                  registered devices via the api call
+     */
+    public HttpResponse getRegisteredDevicesRequest(String username) throws HYPRAuthnFailedException {
         //{{baseUrl}}/rp/ api/oob/client/authentication/{{appId}}/{{username}}/devices
+        // TODO : Look into a way to use the URLBuilder
+        String deviceInfoURL = String.format("%s%s%s/%s/devices", this.baseUrl,
+                HyprAuthenticatorConstants.HYPR.HYPR_USER_DEVICE_INFO_PATH, this.appId, username);
 
+        try {
+            HttpResponse response = HYPRWebUtils.jsonGet(this.apiToken, deviceInfoURL);
 
-            String deviceInfoURL = String.format("%s%s%s/%s/devices", this.getBaseUrl(),
-                    HyprAuthenticatorConstants.HYPR.HYPR_USER_DEVICE_INFO_PATH, this.getAppId(), username);
-
-            try {
-                HttpResponse response = HYPRWebUtils.jsonGet(this.getHyprConfiguration(), deviceInfoURL);
-
-                if (response.getStatusLine().getStatusCode() > 400) {
-                        throw new HYPRAuthnFailedException(
-                                HyprAuthenticatorConstants.ErrorMessages.
-                                        AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE.getCode(),
-                                HyprAuthenticatorConstants.ErrorMessages.
-                                        AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE.getMessage());
-                }
-
-                return response;
-
-            } catch (IOException e) {
+            if (response.getStatusLine().getStatusCode() == 401) {
                 throw new HYPRAuthnFailedException(
-                        HyprAuthenticatorConstants.ErrorMessages
-                                .AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE.getCode(),
                         HyprAuthenticatorConstants.ErrorMessages.
-                                AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE.getMessage(), e);
+                                HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode(),
+                        HyprAuthenticatorConstants.ErrorMessages.
+                                HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getMessage());
+            } else if (response.getStatusLine().getStatusCode() > 400) {
+                throw new HYPRAuthnFailedException(
+                        HyprAuthenticatorConstants.ErrorMessages.
+                                AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE.getCode(),
+                        HyprAuthenticatorConstants.ErrorMessages.
+                                AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE.getMessage());
             }
+            return response;
+
+        } catch (IOException e) {
+            throw new HYPRAuthnFailedException(
+                    HyprAuthenticatorConstants.ErrorMessages
+                            .AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE.getCode(),
+                    HyprAuthenticatorConstants.ErrorMessages.
+                            AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE.getMessage(), e);
+        }
     }
 
     /**
      * Call the HYPR server API to initiate the authentication request via sending the push notification to the
      * registered device.
      *
-     * @param namedUser          The username provided by the user.
-     * @param machineId          The machineId unique per user.
+     * @param username  The username provided by the user.
+     * @param machineId The machineId unique per user.
      * @return response         A HTTPResponse object.
-     * @throws HYPRAuthnFailedException
-     * */
-    public HttpResponse initiateAuthenticationRequest(String namedUser, String machineId)
+     * @throws HYPRAuthnFailedException Exception throws when there is an error occurred when initiating the
+     *                                  authentication with HYPR server
+     */
+    public HttpResponse initiateAuthenticationRequest(String username, String machineId)
             throws HYPRAuthnFailedException {
-        try {
 
-            String initiateAuthenticationURL = String.format("%s%s", this.getBaseUrl(),
+        try {
+            String initiateAuthenticationURL = String.format("%s%s", this.baseUrl,
                     HyprAuthenticatorConstants.HYPR.HYPR_AUTH_PATH);
 
             Map<String, String> requestBodyMap = new HashMap<>();
-            requestBodyMap.put(HyprAuthenticatorConstants.HYPR.APP_ID, this.getAppId());
+            requestBodyMap.put(HyprAuthenticatorConstants.HYPR.APP_ID, this.appId);
             requestBodyMap.put(HyprAuthenticatorConstants.HYPR.MACHINE_ID, machineId);
-            requestBodyMap.put(HyprAuthenticatorConstants.HYPR.NAMED_USER, namedUser);
+            requestBodyMap.put(HyprAuthenticatorConstants.HYPR.NAMED_USER, username);
             requestBodyMap.put(HyprAuthenticatorConstants.HYPR.MACHINE, "WEB");
             requestBodyMap.put(HyprAuthenticatorConstants.HYPR.SESSION_NONCE, HYPRWebUtils.doSha256(
                     String.valueOf(HYPRWebUtils.generateRandomPIN())));
@@ -131,17 +122,22 @@ import java.util.Map;
 
             String jsonRequestBody = this.objectMapper.writeValueAsString(requestBodyMap);
 
-            HttpResponse response = HYPRWebUtils.jsonPost(this.getHyprConfiguration(), initiateAuthenticationURL,
+            HttpResponse response = HYPRWebUtils.jsonPost(this.apiToken, initiateAuthenticationURL,
                     jsonRequestBody);
 
-            if (response.getStatusLine().getStatusCode() > 400) {
+            if (response.getStatusLine().getStatusCode() == 401) {
+                throw new HYPRAuthnFailedException(
+                        HyprAuthenticatorConstants.ErrorMessages.
+                                HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode(),
+                        HyprAuthenticatorConstants.ErrorMessages.
+                                HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getMessage());
+            } else if (response.getStatusLine().getStatusCode() >= 400) {
                 throw new HYPRAuthnFailedException(
                         HyprAuthenticatorConstants.ErrorMessages
                                 .AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE.getCode(),
                         HyprAuthenticatorConstants.ErrorMessages.
                                 AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE.getMessage());
             }
-
             return response;
 
         } catch (IOException e) {
