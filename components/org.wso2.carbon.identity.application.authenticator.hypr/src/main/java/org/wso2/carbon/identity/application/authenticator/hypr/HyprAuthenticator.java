@@ -243,55 +243,64 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
         // Create HYPRAuthorizationAPIClient to make rest api calls.
         HYPRAuthorizationAPIClient hyprAuthorizationAPIClient = getHYPRAPIClient(context);
 
-        // Get the registered devices.
-        ArrayNode registeredDevices = getRegisteredDevices(username, hyprAuthorizationAPIClient);
+        try {
+            // Get the registered devices.
+            ArrayNode registeredDevices = getRegisteredDevices(username, hyprAuthorizationAPIClient);
 
-        // If an empty array received for the registered devices redirect user back to the login page and
-        // display "Invalid username" since a HYPR user cannot exist without a set of registered devices.
-        if (registeredDevices.isEmpty()) {
-            redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.INVALID_REQUEST);
-            return;
-        }
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Successfully retrieved the registered devices for the user : " + username);
-        }
-
-        // Extract the user specific machineId.
-        String machineId = getMachineId(registeredDevices);
-
-        if (StringUtils.isBlank(machineId)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Retrieved machine ID for the username " + username + " is either null or empty.");
+            // If an empty array received for the registered devices redirect user back to the login page and
+            // display "Invalid username" since a HYPR user cannot exist without a set of registered devices.
+            if (registeredDevices.isEmpty()) {
+                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.INVALID_REQUEST);
+                return;
             }
-            redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
-            return;
-        }
 
-        // Send a push notification and extract the requestId received from the HYPR server.
-        String requestId = getRequestIDFromSendPushNotification(username, machineId, hyprAuthorizationAPIClient);
-
-        if (StringUtils.isBlank(requestId)) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Retrieved request ID for the authentication request for the username " + username +
-                        " is either null or empty.");
+                LOG.debug("Successfully retrieved the registered devices for the user : " + username);
             }
-            redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
-            return;
+
+            // Extract the user specific machineId.
+            String machineId = getMachineId(registeredDevices);
+
+            if (StringUtils.isBlank(machineId)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Retrieved machine ID for the username " + username + " is either null or empty.");
+                }
+                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
+                return;
+            }
+
+            // Send a push notification and extract the requestId received from the HYPR server.
+            String requestId = getRequestIDFromSendPushNotification(username, machineId, hyprAuthorizationAPIClient);
+
+            if (StringUtils.isBlank(requestId)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Retrieved request ID for the authentication request for the username " + username +
+                            " is either null or empty.");
+                }
+                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
+                return;
+            }
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Successfully sent a push notification for the registered devices of the user" + username);
+            }
+
+            // Store the HYPR context information.
+            context.setProperty(HYPR.AUTH_STATUS, HYPR.AuthenticationStatus.PENDING.getName());
+            context.setProperty(HYPR.AUTH_REQUEST_ID, requestId);
+            context.setProperty(HYPR.USERNAME, username);
+
+            // Inform the user that the push notification has been sent to the registered device.
+            redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.PENDING);
+
+        } catch (HYPRAuthnFailedException e) {
+            // Handle invalid or expired token.
+            if (ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode().equals(e.getErrorCode())) {
+                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.INVALID_TOKEN);
+            } else {
+                throw e;
+            }
         }
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Successfully sent a push notification for the registered devices of the user" + username);
-        }
-
-        // Store the HYPR context information.
-        context.setProperty(HYPR.AUTH_STATUS, HYPR.AuthenticationStatus.PENDING.getName());
-        context.setProperty(HYPR.AUTH_REQUEST_ID, requestId);
-        context.setProperty(HYPR.USERNAME, username);
-
-        // Inform the user that the push notification has been sent to the registered device.
-        redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.PENDING);
-
     }
 
     /**

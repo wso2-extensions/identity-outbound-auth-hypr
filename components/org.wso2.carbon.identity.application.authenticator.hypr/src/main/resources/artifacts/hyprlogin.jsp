@@ -150,7 +150,7 @@
                     document.getElementById("authenticationStatusMessage").innerText = "Push notification has been sent to your smartphone. Please check your smartphone.";
                     pollAuthStatus();
 
-                } else if (status == 'CANCELED' || status == 'FAILED' || status == 'INVALID_REQUEST'){
+                } else if (status == 'CANCELED' || status == 'FAILED' || status == 'INVALID_REQUEST' || status == 'INVALID_TOKEN'){
                     console.log("Inside handle error");
                     handleError(urlParams.get("message"));
                 }
@@ -265,5 +265,6 @@
             }
         }
  </script>
+
 </body>
 </html>
