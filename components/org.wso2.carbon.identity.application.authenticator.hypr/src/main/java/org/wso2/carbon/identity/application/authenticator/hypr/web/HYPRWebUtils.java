@@ -18,10 +18,6 @@
 
 package org.wso2.carbon.identity.application.authenticator.hypr.web;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -32,11 +28,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.util.EntityUtils;
 import org.wso2.carbon.identity.application.authenticator.hypr.HyprAuthenticatorConstants;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
@@ -54,20 +48,16 @@ public class HYPRWebUtils {
      * @return httpResponse         The response received from the HTTP call.
      * @throws IOException Exception thrown when an error occurred during converting the HTTPResponse to a jsonNode.
      */
-    public static HttpResponse jsonGet(String apiToken, String requestURL) throws IOException {
+    public static HttpResponse httpGet(String apiToken, String requestURL) throws IOException {
 
         HttpGet request = new HttpGet(requestURL);
         request.addHeader(HyprAuthenticatorConstants.HTTP.AUTHORIZATION,
                 HyprAuthenticatorConstants.HTTP.BEARER + apiToken);
 
-        HttpResponse httpResponse;
-
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(request)) {
-            httpResponse = toHttpResponse(response);
+            return toHttpResponse(response);
         }
-
-        return httpResponse;
     }
 
     /**
@@ -79,7 +69,7 @@ public class HYPRWebUtils {
      * @return httpResponse         The response received from the HTTP call.
      * @throws IOException Exception thrown when an error occurred during converting the HTTPResponse to a jsonNode.
      */
-    public static HttpResponse jsonPost(String apiToken, String requestURL, String requestBody) throws IOException {
+    public static HttpResponse httpPost(String apiToken, String requestURL, String requestBody) throws IOException {
 
         HttpPost request = new HttpPost(requestURL);
         request.addHeader(HyprAuthenticatorConstants.HTTP.AUTHORIZATION,
@@ -88,13 +78,10 @@ public class HYPRWebUtils {
                 HyprAuthenticatorConstants.HTTP.APPLICATION_JSON);
         request.setEntity(new StringEntity(requestBody, ContentType.APPLICATION_JSON));
 
-        HttpResponse httpResponse;
-
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(request)) {
-            httpResponse = toHttpResponse(response);
+            return toHttpResponse(response);
         }
-        return httpResponse;
     }
 
     private static HttpResponse toHttpResponse(final CloseableHttpResponse response) throws IOException {
@@ -104,24 +91,6 @@ public class HYPRWebUtils {
             result.setEntity(new BufferedHttpEntity(response.getEntity()));
         }
         return result;
-    }
-
-    /**
-     * Convert the HTTPResponse to a json node.
-     *
-     * @param response A HTTPResponse object received from API call.
-     * @throws IOException Exception thrown when an error occurred during converting the HTTPResponse to a jsonNode.
-     */
-    public static JsonNode toJsonNode(HttpResponse response) throws IOException {
-
-        JsonNode rootNode = null;
-        HttpEntity entity = response.getEntity();
-        if (entity != null) {
-            // Convert to a string
-            String result = EntityUtils.toString(entity);
-            rootNode = new ObjectMapper().readTree(new StringReader(result));
-        }
-        return rootNode;
     }
 
     /**
