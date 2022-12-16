@@ -18,8 +18,9 @@
 
 package org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.core;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
@@ -34,9 +35,9 @@ import org.wso2.carbon.identity.application.authenticator.hypr.rest.common.HYPRC
 import org.wso2.carbon.identity.application.authenticator.hypr.rest.common.error.APIError;
 import org.wso2.carbon.identity.application.authenticator.hypr.rest.common.error.ErrorResponse;
 import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.StatusResponse;
+import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.model.StateResponse;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -69,11 +70,11 @@ public class ServerHYPRAuthenticatorService {
 
             // If the authentication status property has assigned with one of the terminating status
             // (i.e. "COMPLETED", "FAILED", "CANCELED"), avoid making API call to the HYPR server.
-            if (Arrays.asList(HYPRConstants.TERMINATING_STATUSES)
-                    .contains(hyprAuthenticationProperties.get(HYPRConstants.AUTH_STATUS))) {
+            String previousState = hyprAuthenticationProperties.get(HYPRConstants.AUTH_STATUS);
+            if (Arrays.asList(HYPRConstants.TERMINATING_STATUSES).contains(previousState)) {
+
                 StatusResponse statusResponse = new StatusResponse();
-                statusResponse.setStatus(StatusResponse.StatusEnum
-                        .fromValue(hyprAuthenticationProperties.get(HYPRConstants.AUTH_STATUS)));
+                statusResponse.setStatus(StatusResponse.StatusEnum.fromValue(previousState));
                 statusResponse.setSessionKey(sessionKey);
 
                 return statusResponse;
@@ -94,29 +95,23 @@ public class ServerHYPRAuthenticatorService {
                  CloseableHttpResponse response = client.execute(request)) {
 
                 if (response.getStatusLine().getStatusCode() == 200) {
-                    JsonNode authenticationStatusJsonNode = toJsonNode(response);
-                    if (!authenticationStatusJsonNode.isEmpty()) {
-                        if (authenticationStatusJsonNode.has("state") &&
-                                !authenticationStatusJsonNode.get("state").isEmpty()) {
-                            String status = authenticationStatusJsonNode.get("state")
-                                    .get(authenticationStatusJsonNode.get("state").size() - 1)
-                                    .get("value")
-                                    .toString()
-                                    .replace("\"", "");
 
-                            // Store the status.
-                            authenticationContext.setProperty(HYPRConstants.AUTH_STATUS, status);
+                    HttpEntity entity = response.getEntity();
+                    String jsonString = EntityUtils.toString(entity);
 
-                            // Return the status as a response.
-                            StatusResponse statusResponse = new StatusResponse();
-                            statusResponse.setStatus(StatusResponse.StatusEnum.fromValue(status));
-                            statusResponse.setSessionKey(sessionKey);
+                    Gson gson = new GsonBuilder().create();
+                    StateResponse stateResponse = gson.fromJson(jsonString, StateResponse.class);
+                    String currentState = stateResponse.getCurrentState();
 
-                            return statusResponse;
-                        }
-                    }
-                    throw handleError(Response.Status.INTERNAL_SERVER_ERROR,
-                            HYPRConstants.ErrorMessage.SERVER_ERROR_RETRIEVING_AUTHENTICATION_STATUS);
+                    // Store the state.
+                    authenticationContext.setProperty(HYPRConstants.AUTH_STATUS, currentState);
+
+                    // Return the state as a REST API response.
+                    StatusResponse statusResponse = new StatusResponse();
+                    statusResponse.setStatus(StatusResponse.StatusEnum.fromValue(currentState));
+                    statusResponse.setSessionKey(sessionKey);
+
+                    return statusResponse;
 
                 } else if (response.getStatusLine().getStatusCode() == 400) {
                     // Handle invalid request id.
@@ -129,9 +124,9 @@ public class ServerHYPRAuthenticatorService {
                 }
             }
         } catch (IOException e) {
-            //Internal server error when converting the response to jsonNode
             throw handleException(e, HYPRConstants.ErrorMessage.SERVER_ERROR_RETRIEVING_AUTHENTICATION_STATUS, false);
         }
+
         throw handleError(Response.Status.INTERNAL_SERVER_ERROR, HYPRConstants.ErrorMessage.SERVER_ERROR_GENERAL);
     }
 
@@ -164,9 +159,17 @@ public class ServerHYPRAuthenticatorService {
                     HYPRConstants.ErrorMessage.SERVER_ERROR_INVALID_AUTHENTICATOR_CONFIGURATIONS);
         }
 
+        String baseUrl = authenticatorProperties.get(HYPRConstants.BASE_URL);
+        String apiToken = authenticatorProperties.get(HYPRConstants.API_TOKEN);
+
+        if (StringUtils.isBlank(baseUrl) || StringUtils.isBlank(apiToken)) {
+            throw handleError(Response.Status.INTERNAL_SERVER_ERROR,
+                    HYPRConstants.ErrorMessage.SERVER_ERROR_INVALID_AUTHENTICATOR_CONFIGURATIONS);
+        }
+
         Map<String, String> hyprConfigurations = new HashMap<>();
-        hyprConfigurations.put(HYPRConstants.BASE_URL, authenticatorProperties.get(HYPRConstants.BASE_URL));
-        hyprConfigurations.put(HYPRConstants.API_TOKEN, authenticatorProperties.get(HYPRConstants.API_TOKEN));
+        hyprConfigurations.put(HYPRConstants.BASE_URL, baseUrl);
+        hyprConfigurations.put(HYPRConstants.API_TOKEN, apiToken);
 
         return hyprConfigurations;
     }
@@ -184,30 +187,19 @@ public class ServerHYPRAuthenticatorService {
                     HYPRConstants.ErrorMessage.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES);
         }
 
-        Map<String, String> hyprAuthenticationProperties = new HashMap<>();
-        hyprAuthenticationProperties.put(HYPRConstants.AUTH_STATUS,
-                (String) authenticationContext.getProperty(HYPRConstants.AUTH_STATUS));
-        hyprAuthenticationProperties.put(HYPRConstants.AUTH_REQUEST_ID,
-                (String) authenticationContext.getProperty(HYPRConstants.AUTH_REQUEST_ID));
-        return hyprAuthenticationProperties;
-    }
+        String authStatus = String.valueOf(authenticationContext.getProperty(HYPRConstants.AUTH_STATUS));
+        String authRequestID = String.valueOf(authenticationContext.getProperty(HYPRConstants.AUTH_REQUEST_ID));
 
-    /**
-     * Convert the HTTPResponse to a json node.
-     *
-     * @param response A HTTPResponse object received from API call.
-     * @throws IOException Exceptions thrown when an error occurred while converting the HTTPResponse to a json node.
-     */
-    private JsonNode toJsonNode(CloseableHttpResponse response) throws IOException {
-
-        JsonNode rootNode = null;
-        HttpEntity entity = response.getEntity();
-        if (entity != null) {
-            // Convert to a string
-            String result = EntityUtils.toString(entity);
-            rootNode = new ObjectMapper().readTree(new StringReader(result));
+        if (StringUtils.isBlank(authStatus) || StringUtils.isBlank(authRequestID)) {
+            throw handleError(Response.Status.INTERNAL_SERVER_ERROR,
+                    HYPRConstants.ErrorMessage.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES);
         }
-        return rootNode;
+
+        Map<String, String> hyprAuthenticationProperties = new HashMap<>();
+        hyprAuthenticationProperties.put(HYPRConstants.AUTH_STATUS, authStatus);
+        hyprAuthenticationProperties.put(HYPRConstants.AUTH_REQUEST_ID, authRequestID);
+
+        return hyprAuthenticationProperties;
     }
 
     public APIError handleInvalidInput(HYPRConstants.ErrorMessage errorEnum, String... data) {
