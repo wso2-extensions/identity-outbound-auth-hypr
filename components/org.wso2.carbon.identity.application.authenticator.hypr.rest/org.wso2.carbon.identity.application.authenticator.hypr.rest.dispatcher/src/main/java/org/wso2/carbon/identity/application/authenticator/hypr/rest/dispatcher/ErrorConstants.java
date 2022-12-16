@@ -17,5 +17,5 @@ public class ErrorConstants {
 
     public static final String ERROR_CODE = "HYPR-API-";
     public static final String ERROR_MESSAGE = "Invalid Request.";
-    public static final String ERROR_DESCRIPTION = "Provided request body content is not in the expected format.";
+    public static final String ERROR_DESCRIPTION = "Provided session key in the request is invalid.";
 }
