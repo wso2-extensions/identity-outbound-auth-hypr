@@ -138,20 +138,17 @@
 
             const urlParams = new URLSearchParams(window.location.search);
             sessionDataKey = urlParams.get('sessionDataKey');
-            console.log("Session data key : "+ sessionDataKey);
 
             if (urlParams.has("status")){
                 const status = urlParams.get("status");
 
                 if(status == "PENDING") {
-                    console.log("Inside poll status");
                     document.getElementById("loginForm").style.display = 'none';
                     document.getElementById("inProgressDisplay").style.display = 'block';
                     document.getElementById("authenticationStatusMessage").innerText = "Push notification has been sent to your smartphone. Please check your smartphone.";
                     pollAuthStatus();
 
                 } else if (status == 'CANCELED' || status == 'FAILED' || status == 'INVALID_REQUEST' || status == 'INVALID_TOKEN'){
-                    console.log("Inside handle error");
                     handleError(urlParams.get("message"));
                 }
             }
@@ -196,15 +193,12 @@
                         "Authorization": "<%=header%>"
                     },
                     success: function (res) {
-                        console.log("inside success");
                         handleStatusResponse(res);
                     },
                     error: function (err) {
-                        console.log("inside error");
                         handleAuthenticationFailed();
                     },
                     failure: function () {
-                        console.log("inside failure");
                         isPollingStopped = true;
                         window.clearInterval(intervalListener);
                     }
@@ -214,7 +208,6 @@
             }
 
             function handleStatusResponse(res) {
-                console.log(res.status);
 
                 if (["COMPLETED", "CANCELED", "FAILED"].includes(res.status)) {
                     completeAuthentication();
