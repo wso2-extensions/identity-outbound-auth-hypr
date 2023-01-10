@@ -1,6 +1,6 @@
-package org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.model;
+package org.wso2.carbon.identity.application.authenticator.hypr.common.model;
 
-/***/
+/***/ //TODO:  Add class descriptions & license
 public class State {
 
     private final String value;

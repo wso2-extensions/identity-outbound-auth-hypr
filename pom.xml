@@ -31,6 +31,7 @@
     <modules>
         <module>components/org.wso2.carbon.identity.application.authenticator.hypr</module>
         <module>components/org.wso2.carbon.identity.application.authenticator.hypr.rest</module>
+        <module>components/org.wso2.carbon.identity.application.authenticator.hypr.common</module>
     </modules>
 
     <dependencyManagement>

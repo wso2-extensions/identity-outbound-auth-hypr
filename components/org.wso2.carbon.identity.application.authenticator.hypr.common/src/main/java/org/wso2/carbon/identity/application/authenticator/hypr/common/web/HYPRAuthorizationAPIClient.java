@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.application.authenticator.hypr.web;
+package org.wso2.carbon.identity.application.authenticator.hypr.common.web;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,13 +24,13 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.wso2.carbon.identity.application.authenticator.hypr.HyprAuthenticatorConstants;
-import org.wso2.carbon.identity.application.authenticator.hypr.HyprAuthenticatorConstants.ErrorMessages;
-import org.wso2.carbon.identity.application.authenticator.hypr.exception.HYPRAuthnFailedException;
-import org.wso2.carbon.identity.application.authenticator.hypr.model.DeviceAuthenticationRequest;
-import org.wso2.carbon.identity.application.authenticator.hypr.model.DeviceAuthenticationResponse;
-import org.wso2.carbon.identity.application.authenticator.hypr.model.RegisteredDevice;
-import org.wso2.carbon.identity.application.authenticator.hypr.model.RegisteredDevicesResponse;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.exception.HYPRAuthnFailedException;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.model.DeviceAuthenticationRequest;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.model.DeviceAuthenticationResponse;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.model.RegisteredDevice;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.model.RegisteredDevicesResponse;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.model.StateResponse;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -62,9 +62,11 @@ public class HYPRAuthorizationAPIClient {
             HttpResponse response = HYPRWebUtils.httpGet(apiToken, deviceInfoURL);
 
             if (response.getStatusLine().getStatusCode() == 401) {
-                throw getHyprAuthnFailedException(ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE);
+                throw getHyprAuthnFailedException(
+                        HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE);
             } else if (response.getStatusLine().getStatusCode() > 400) {
-                throw getHyprAuthnFailedException(ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE);
+                throw getHyprAuthnFailedException(
+                        HyprAuthenticatorConstants.ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE);
             }
 
             Gson gson = new GsonBuilder().create();
@@ -76,7 +78,8 @@ public class HYPRAuthorizationAPIClient {
             return new RegisteredDevicesResponse(gson.fromJson(jsonString, listType));
 
         } catch (IOException e) {
-            throw getHyprAuthnFailedException(ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE, e);
+            throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
+                    .AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE, e);
         }
     }
 
@@ -84,9 +87,9 @@ public class HYPRAuthorizationAPIClient {
      * Call the HYPR server API to initiate the authentication request via sending the push notification to the
      * registered device.
      *
-     * @param baseUrl The baseURL provided from the HYPR.
-     * @param appId The ID of the application created via the HYPR control center.
-     * @param apiToken The API token generated from the application created via the HYPR control center.
+     * @param baseUrl   The baseURL provided from the HYPR.
+     * @param appId     The ID of the application created via the HYPR control center.
+     * @param apiToken  The API token generated from the application created via the HYPR control center.
      * @param username  The username provided by the user.
      * @param machineId The machineId unique per user.
      * @return DeviceAuthenticationResponse
@@ -110,10 +113,11 @@ public class HYPRAuthorizationAPIClient {
             HttpResponse response = HYPRWebUtils.httpPost(apiToken, initiateAuthenticationURL, jsonRequestBody);
 
             if (response.getStatusLine().getStatusCode() == 401) {
-                throw getHyprAuthnFailedException(ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE);
+                throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
+                        .HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE);
             } else if (response.getStatusLine().getStatusCode() >= 400) {
-                throw getHyprAuthnFailedException(
-                        ErrorMessages.AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE);
+                throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
+                        .AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE);
             }
 
             HttpEntity entity = response.getEntity();
@@ -122,10 +126,49 @@ public class HYPRAuthorizationAPIClient {
             return gson.fromJson(jsonString, DeviceAuthenticationResponse.class);
 
         } catch (IOException e) {
-            throw getHyprAuthnFailedException(ErrorMessages.AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE, e);
+            throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
+                    .AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE, e);
         } catch (NoSuchAlgorithmException e) {
-            throw getHyprAuthnFailedException(ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_HASH_ALGORITHM_FAILURE, e);
+            throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
+                    .AUTHENTICATION_FAILED_RETRIEVING_HASH_ALGORITHM_FAILURE, e);
         }
+    }
+
+    public static StateResponse getAuthenticationStatus(String baseURL, String apiToken, String requestID)
+            throws HYPRAuthnFailedException {
+
+        // URL : {{baseUrl}}/rp/api/oob/client/authentication/requests/{{requestId}}
+        String authenticationStatusPollURL = String.format("%s%s%s", baseURL,
+                HyprAuthenticatorConstants.HYPR.HYPR_AUTH_STATUS_CHECK_PATH, requestID);
+
+        try {
+            HttpResponse response = HYPRWebUtils.httpGet(apiToken, authenticationStatusPollURL);
+
+            if (response.getStatusLine().getStatusCode() == 200) {
+
+                HttpEntity entity = response.getEntity();
+                String jsonString = EntityUtils.toString(entity);
+
+                Gson gson = new GsonBuilder().create();
+                StateResponse stateResponse = gson.fromJson(jsonString, StateResponse.class);
+
+                return stateResponse;
+
+            } else if (response.getStatusLine().getStatusCode() == 400) {
+                throw getHyprAuthnFailedException(
+                        HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES);
+
+            } else if (response.getStatusLine().getStatusCode() == 401) {
+                throw getHyprAuthnFailedException(
+                        HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_INVALID_API_TOKEN);
+            }
+
+        } catch (IOException e) {
+            throw getHyprAuthnFailedException(HyprAuthenticatorConstants
+                    .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE , e);
+        }
+
+        return null;
     }
 
     private static HYPRAuthnFailedException getHyprAuthnFailedException(

@@ -1,8 +1,8 @@
-package org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.model;
+package org.wso2.carbon.identity.application.authenticator.hypr.common.model;
 
 import java.util.List;
 
-/***/
+/***///TODO:  Add class descriptions
 public class StateResponse {
 
     private final String requestId;

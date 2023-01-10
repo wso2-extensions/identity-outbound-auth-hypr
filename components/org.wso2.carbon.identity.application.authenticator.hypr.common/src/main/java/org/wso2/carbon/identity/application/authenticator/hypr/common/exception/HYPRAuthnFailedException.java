@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.application.authenticator.hypr.exception;
+package org.wso2.carbon.identity.application.authenticator.hypr.common.exception;
 
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 

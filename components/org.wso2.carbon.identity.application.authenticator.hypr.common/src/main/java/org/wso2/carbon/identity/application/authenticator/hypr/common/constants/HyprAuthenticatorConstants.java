@@ -16,7 +16,10 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.application.authenticator.hypr;
+package org.wso2.carbon.identity.application.authenticator.hypr.common.constants;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Includes all the constants variables used by the HYPR authenticator.
@@ -28,28 +31,48 @@ public class HyprAuthenticatorConstants {
      */
     public enum ErrorMessages {
 
-        AUTHENTICATION_FAILED_REDIRECTING_LOGIN_FAILURE("HYPR-65001",
+        AUTHENTICATION_FAILED_REDIRECTING_LOGIN_FAILURE("65001",
                 "Authentication failed when redirecting the user to the login page."),
         AUTHENTICATION_FAILED_BUILDING_LOGIN_URL_FAILURE("HYPR-65002",
                 "Authentication when building the login URL."),
-        AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE("HYPR-65003",
+        AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE("65003",
                 "Authentication failed retrieving the registered devices."),
-        AUTHENTICATION_FAILED_EXTRACTING_MACHINE_ID_FAILURE("HYPR-65004",
+        AUTHENTICATION_FAILED_EXTRACTING_MACHINE_ID_FAILURE("65004",
                 "Authentication failed when extracting the machine ID of the user."),
-        AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE("HYPR-65005",
+        AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE("65005",
                 "Authentication failed when sending a push notification to the registered device."),
-        AUTHENTICATION_FAILED_RETRIEVING_HASH_ALGORITHM_FAILURE("HYPR-65006",
+        AUTHENTICATION_FAILED_RETRIEVING_HASH_ALGORITHM_FAILURE("65006",
                 "Authentication failed retrieving the hash algorithm."),
-        AUTHENTICATION_FAILED_EXTRACTING_REQUEST_ID_FAILURE("HYPR-65007",
+        AUTHENTICATION_FAILED_EXTRACTING_REQUEST_ID_FAILURE("65007",
                 "Authentication failed when extracting the request ID provided by the HYPR server upon " +
                         "initiating the send push notification request."),
-        HYPR_BASE_URL_INVALID_FAILURE("HYPR-65008", "Provided HYPR base URL is invalid."),
-        HYPR_APP_ID_INVALID_FAILURE("HYPR-65009", "Provided HYPR app ID is invalid."),
-        HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE("HYPR-65010",
-                "Provided HYPR endpoint API token is either invalid or expired");
-
+        AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE("65008",
+                "Authentication failed when retrieving status of the user authentication."),
+        HYPR_BASE_URL_INVALID_FAILURE("65009", "Provided HYPR base URL is invalid."),
+        HYPR_APP_ID_INVALID_FAILURE("65010", "Provided HYPR app ID is invalid."),
+        HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE("65011",
+                "Provided HYPR endpoint API token is either invalid or expired"),
+        SERVER_ERROR_GENERAL("65012", "Server error occurred",
+                "Unable to complete the action due to a server error"),
+        SERVER_ERROR_INVALID_API_TOKEN("65013", "Invalid API token",
+                "The extracted HYPR API token is either expired or invalid."),
+        SERVER_ERROR_INVALID_HYPR_URL("65014", "Invalid HYPR Base URL.",
+                "Extracted HYPR Base URL doesn't exist."),
+        SERVER_ERROR_RETRIEVING_AUTHENTICATION_STATUS("65015",
+                "Error while retrieving authentication status",
+                "Error occurred while retrieving the authentication status from the HYPR server."),
+        SERVER_ERROR_INVALID_AUTHENTICATOR_CONFIGURATIONS("65016",
+                "Invalid authenticator configurations",
+                "Extracted HYPR authenticator configurations missing either baseUrl or apiToken"),
+        SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES("65017",
+                "Invalid authenticator configurations",
+                "Extracted HYPR authentication properties from the context missing either authStatus or " +
+                        "requestId"),
+        CLIENT_ERROR_INVALID_SESSION_KEY("60001", "Invalid session key provided.",
+                                                 "The provided session key doesn't exist.");
         private final String code;
         private final String message;
+        private final String description;
 
         /**
          * Create an Error Message.
@@ -61,6 +84,14 @@ public class HyprAuthenticatorConstants {
 
             this.code = code;
             this.message = message;
+            description = null;
+        }
+
+        ErrorMessages(String code, String message, String description) {
+
+            this.code = code;
+            this.message = message;
+            this.description = description;
         }
 
         /**
@@ -70,7 +101,7 @@ public class HyprAuthenticatorConstants {
          */
         public String getCode() {
 
-            return code;
+            return HYPR.HYPR_API_PREFIX + code;
         }
 
         /**
@@ -83,23 +114,16 @@ public class HyprAuthenticatorConstants {
             return message;
         }
 
+        public String getDescription() {
+
+            return description;
+        }
+
         @Override
         public String toString() {
 
-            return String.format("%s  - %s", code, message);
+            return code + " | " + message;
         }
-    }
-
-    /**
-     * Includes the HTTP header parameters.
-     */
-    public static class HTTP {
-
-        // HTTP header parameters
-        public static final String AUTHORIZATION = "Authorization";
-        public static final String BEARER = "Bearer ";
-        public static final String CONTENT_TYPE = "Content-Type";
-        public static final String APPLICATION_JSON = "application/json";
     }
 
     /**
@@ -111,15 +135,16 @@ public class HyprAuthenticatorConstants {
         public static final String AUTHENTICATOR_FRIENDLY_NAME = "HYPR";
         public static final String SESSION_DATA_KEY = "sessionDataKey";
         public static final String USERNAME = "username";
-        public static final String AUTH_STATUS = "authStatus";
-        public static final String AUTH_REQUEST_ID = "authRequestId";
 
-        //Configurable parameters
+        public static final String CORRELATION_ID_KEY = "Correlation-ID";
+        public static final String HYPR_API_PREFIX = "HYPR-API-";
+
+        // Configurable parameters
         public static final String BASE_URL = "baseUrl";
         public static final String APP_ID = "appId";
         public static final String HYPR_API_TOKEN = "apiToken";
 
-        // API Parameters
+        // HYPR API Parameters
         public static final String MACHINE = "machine";
         public static final String MACHINE_ID = "machineId";
         public static final String REQUEST_ID = "requestId";
@@ -130,9 +155,15 @@ public class HyprAuthenticatorConstants {
         public static final String SERVICE_NONCE = "serviceNonce";
         public static final String SERVICE_MAC = "serviceHmac";
 
+        // REST API Parameters
+        public static final String AUTH_STATUS = "authStatus";
+        public static final String AUTH_REQUEST_ID = "authRequestId";
+        public static final List<String> TERMINATING_STATUSES = Arrays.asList("COMPLETED", "FAILED", "CANCELED");
+
         // Authentication API paths
         public static final String HYPR_USER_DEVICE_INFO_PATH = "/rp/api/oob/client/authentication/";
         public static final String HYPR_AUTH_PATH = "/rp/api/oob/client/authentication/requests";
+        public static final String HYPR_AUTH_STATUS_CHECK_PATH = "/rp/api/oob/client/authentication/requests/";
 
         //Page paths
         public static final String HYPR_LOGIN_PAGE = "/authenticationendpoint/hyprlogin.jsp";

@@ -1,4 +1,4 @@
-package org.wso2.carbon.identity.application.authenticator.hypr.model;
+package org.wso2.carbon.identity.application.authenticator.hypr.common.model;
 
 /***/
 public class RequestIDResponse {

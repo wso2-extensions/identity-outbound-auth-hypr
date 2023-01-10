@@ -1,11 +1,11 @@
-package org.wso2.carbon.identity.application.authenticator.hypr.model;
+package org.wso2.carbon.identity.application.authenticator.hypr.common.model;
 
-import org.wso2.carbon.identity.application.authenticator.hypr.web.HYPRWebUtils;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.web.HYPRWebUtils;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
-/***/
+/***/ //TODO:
 public class DeviceAuthenticationRequest {
 
     private final String namedUser;

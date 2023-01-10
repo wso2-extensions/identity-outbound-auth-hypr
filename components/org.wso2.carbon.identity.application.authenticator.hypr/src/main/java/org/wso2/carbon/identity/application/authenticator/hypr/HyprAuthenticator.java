@@ -28,14 +28,16 @@ import org.wso2.carbon.identity.application.authentication.framework.context.Aut
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.model.AuthenticatedUser;
-import org.wso2.carbon.identity.application.authenticator.hypr.exception.HYPRAuthnFailedException;
-import org.wso2.carbon.identity.application.authenticator.hypr.model.DeviceAuthenticationResponse;
-import org.wso2.carbon.identity.application.authenticator.hypr.model.RegisteredDevicesResponse;
-import org.wso2.carbon.identity.application.authenticator.hypr.web.HYPRAuthorizationAPIClient;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants.ErrorMessages;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants.HYPR;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.exception.HYPRAuthnFailedException;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.model.DeviceAuthenticationResponse;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.model.RegisteredDevicesResponse;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.web.HYPRAuthorizationAPIClient;
 import org.wso2.carbon.identity.application.common.model.Property;
 import org.wso2.carbon.identity.core.ServiceURLBuilder;
 import org.wso2.carbon.identity.core.URLBuilderException;
-//import org.wso2.carbon.identity.core.util.IdentityUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,8 +46,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static org.wso2.carbon.identity.application.authenticator.hypr.HyprAuthenticatorConstants.ErrorMessages;
-import static org.wso2.carbon.identity.application.authenticator.hypr.HyprAuthenticatorConstants.HYPR;
 
 /**
  * The HyprAuthenticator class contains all the functional tasks handled by the authenticator with HYPR IdP and
@@ -65,7 +65,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
     @Override
     public String getName() {
 
-        return HYPR.AUTHENTICATOR_NAME;
+        return HyprAuthenticatorConstants.HYPR.AUTHENTICATOR_NAME;
     }
 
     /**

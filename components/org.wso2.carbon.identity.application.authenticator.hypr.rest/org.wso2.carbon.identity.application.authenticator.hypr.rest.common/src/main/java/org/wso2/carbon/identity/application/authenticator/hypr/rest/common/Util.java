@@ -11,6 +11,7 @@
 package org.wso2.carbon.identity.application.authenticator.hypr.rest.common;
 
 import org.slf4j.MDC;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
 
 import java.util.UUID;
 
@@ -32,7 +33,7 @@ public class Util {
     public static String getCorrelation() {
 
         if (isCorrelationIDPresent()) {
-            return MDC.get(HYPRConstants.CORRELATION_ID_KEY).toString();
+            return MDC.get(HyprAuthenticatorConstants.HYPR.CORRELATION_ID_KEY).toString();
         }
         return UUID.randomUUID().toString();
     }
@@ -44,6 +45,6 @@ public class Util {
      */
     public static boolean isCorrelationIDPresent() {
 
-        return MDC.get(HYPRConstants.CORRELATION_ID_KEY) != null;
+        return MDC.get(HyprAuthenticatorConstants.HYPR.CORRELATION_ID_KEY) != null;
     }
 }

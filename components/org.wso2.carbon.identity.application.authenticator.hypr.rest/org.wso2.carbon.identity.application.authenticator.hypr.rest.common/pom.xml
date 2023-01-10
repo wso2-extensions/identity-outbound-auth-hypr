@@ -105,5 +105,9 @@
             <version>5.25.14</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.identity.outbound.auth.hypr</groupId>
+            <artifactId>org.wso2.carbon.identity.application.authenticator.hypr.common</artifactId>
+        </dependency>
     </dependencies>
 </project>

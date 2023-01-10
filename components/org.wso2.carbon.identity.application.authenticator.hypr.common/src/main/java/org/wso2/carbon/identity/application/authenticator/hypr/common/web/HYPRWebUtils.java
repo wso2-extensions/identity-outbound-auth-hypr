@@ -16,8 +16,9 @@
  * under the License.
  */
 
-package org.wso2.carbon.identity.application.authenticator.hypr.web;
+package org.wso2.carbon.identity.application.authenticator.hypr.common.web;
 
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -28,7 +29,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHttpResponse;
-import org.wso2.carbon.identity.application.authenticator.hypr.HyprAuthenticatorConstants;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -51,8 +51,7 @@ public class HYPRWebUtils {
     public static HttpResponse httpGet(String apiToken, String requestURL) throws IOException {
 
         HttpGet request = new HttpGet(requestURL);
-        request.addHeader(HyprAuthenticatorConstants.HTTP.AUTHORIZATION,
-                HyprAuthenticatorConstants.HTTP.BEARER + apiToken);
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiToken);
 
         try (CloseableHttpClient client = HttpClients.createDefault();
              CloseableHttpResponse response = client.execute(request)) {
@@ -70,12 +69,10 @@ public class HYPRWebUtils {
      * @throws IOException Exception thrown when an error occurred during converting the HTTPResponse to a jsonNode.
      */
     public static HttpResponse httpPost(String apiToken, String requestURL, String requestBody) throws IOException {
-
+// TODO : Have a pool of connections . check
         HttpPost request = new HttpPost(requestURL);
-        request.addHeader(HyprAuthenticatorConstants.HTTP.AUTHORIZATION,
-                HyprAuthenticatorConstants.HTTP.BEARER + apiToken);
-        request.setHeader(HyprAuthenticatorConstants.HTTP.CONTENT_TYPE,
-                HyprAuthenticatorConstants.HTTP.APPLICATION_JSON);
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiToken);
+        request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         request.setEntity(new StringEntity(requestBody, ContentType.APPLICATION_JSON));
 
         try (CloseableHttpClient client = HttpClients.createDefault();
