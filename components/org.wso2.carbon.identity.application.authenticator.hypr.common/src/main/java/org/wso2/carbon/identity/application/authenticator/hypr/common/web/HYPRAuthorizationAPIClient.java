@@ -26,6 +26,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.exception.HYPRAuthnFailedException;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.exception.HYPRClientException;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.model.DeviceAuthenticationRequest;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.model.DeviceAuthenticationResponse;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.model.RegisteredDevice;
@@ -80,6 +81,9 @@ public class HYPRAuthorizationAPIClient {
         } catch (IOException e) {
             throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
                     .AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE, e);
+        } catch (HYPRClientException e) {
+            throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
+                    .SERVER_ERROR_CREATING_HTTP_CLIENT, e);
         }
     }
 
@@ -131,6 +135,9 @@ public class HYPRAuthorizationAPIClient {
         } catch (NoSuchAlgorithmException e) {
             throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
                     .AUTHENTICATION_FAILED_RETRIEVING_HASH_ALGORITHM_FAILURE, e);
+        } catch (HYPRClientException e) {
+        throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
+                .SERVER_ERROR_CREATING_HTTP_CLIENT, e);
         }
     }
 
@@ -166,6 +173,9 @@ public class HYPRAuthorizationAPIClient {
         } catch (IOException e) {
             throw getHyprAuthnFailedException(HyprAuthenticatorConstants
                     .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE , e);
+        } catch (HYPRClientException e) {
+            throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
+                    .SERVER_ERROR_CREATING_HTTP_CLIENT, e);
         }
 
         return null;

@@ -27,8 +27,8 @@ import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHttpResponse;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.exception.HYPRClientException;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -48,13 +48,13 @@ public class HYPRWebUtils {
      * @return httpResponse         The response received from the HTTP call.
      * @throws IOException Exception thrown when an error occurred during converting the HTTPResponse to a jsonNode.
      */
-    public static HttpResponse httpGet(String apiToken, String requestURL) throws IOException {
+    public static HttpResponse httpGet(String apiToken, String requestURL) throws IOException, HYPRClientException {
 
         HttpGet request = new HttpGet(requestURL);
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiToken);
 
-        try (CloseableHttpClient client = HttpClients.createDefault();
-             CloseableHttpResponse response = client.execute(request)) {
+        CloseableHttpClient client = HTTPClientManager.getInstance().getClient();
+        try (CloseableHttpResponse response = client.execute(request)) {
             return toHttpResponse(response);
         }
     }
@@ -68,15 +68,15 @@ public class HYPRWebUtils {
      * @return httpResponse         The response received from the HTTP call.
      * @throws IOException Exception thrown when an error occurred during converting the HTTPResponse to a jsonNode.
      */
-    public static HttpResponse httpPost(String apiToken, String requestURL, String requestBody) throws IOException {
-// TODO : Have a pool of connections . check
+    public static HttpResponse httpPost(String apiToken, String requestURL, String requestBody)
+            throws IOException, HYPRClientException {
         HttpPost request = new HttpPost(requestURL);
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiToken);
         request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         request.setEntity(new StringEntity(requestBody, ContentType.APPLICATION_JSON));
 
-        try (CloseableHttpClient client = HttpClients.createDefault();
-             CloseableHttpResponse response = client.execute(request)) {
+        CloseableHttpClient client = HTTPClientManager.getInstance().getClient();
+        try (CloseableHttpResponse response = client.execute(request)) {
             return toHttpResponse(response);
         }
     }
