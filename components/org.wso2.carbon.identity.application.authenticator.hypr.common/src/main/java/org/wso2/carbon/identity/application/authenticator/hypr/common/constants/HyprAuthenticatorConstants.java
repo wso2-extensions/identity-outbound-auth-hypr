@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Includes all the constants variables used by the HYPR authenticator.
+ * Includes all the constants variables used by the HYPR connector.
  */
 public class HyprAuthenticatorConstants {
 
@@ -118,6 +118,11 @@ public class HyprAuthenticatorConstants {
             return message;
         }
 
+        /**
+         * To get the description of specific error.
+         *
+         * @return Error description.
+         */
         public String getDescription() {
 
             return description;

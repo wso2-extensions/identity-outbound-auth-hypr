@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -46,7 +46,8 @@ public class HYPRWebUtils {
      * @param apiToken   API token provided by HYPR.
      * @param requestURL The URL to which the GET request should be sent.
      * @return httpResponse         The response received from the HTTP call.
-     * @throws IOException Exception thrown when an error occurred during converting the HTTPResponse to a jsonNode.
+     * @throws IOException Exception thrown when an error occurred during extracting the HTTP response content.
+     * @throws HYPRClientException Exception thrown when an error occurred with the HTTP client connection.
      */
     public static HttpResponse httpGet(String apiToken, String requestURL) throws IOException, HYPRClientException {
 
@@ -66,7 +67,8 @@ public class HYPRWebUtils {
      * @param requestURL  The URL to which the POST request should be sent.
      * @param requestBody A hashmap that includes the parameters to be sent through the request.
      * @return httpResponse         The response received from the HTTP call.
-     * @throws IOException Exception thrown when an error occurred during converting the HTTPResponse to a jsonNode.
+     * @throws IOException Exception thrown when an error occurred during extracting the HTTP response content.
+     * @throws HYPRClientException Exception thrown when an error occurred with the HTTP client connection.
      */
     public static HttpResponse httpPost(String apiToken, String requestURL, String requestBody)
             throws IOException, HYPRClientException {

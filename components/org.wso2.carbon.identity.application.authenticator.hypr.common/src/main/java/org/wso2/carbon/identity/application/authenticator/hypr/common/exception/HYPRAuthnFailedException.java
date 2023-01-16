@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -32,12 +32,20 @@ public class HYPRAuthnFailedException extends AuthenticationFailedException {
      *
      * @param code    An error code specified to the authenticator.
      * @param message An error message specified to the authenticator.
+     * @param cause Thrown exception.
      */
     public HYPRAuthnFailedException(String code, String message, Throwable cause) {
 
         super(code, message, cause);
     }
 
+    /**
+     * An overloaded constructor which is used to throw an error code and error message once
+     * authenticator unable to proceed the authentication with HYPR.
+     *
+     * @param code    An error code specified to the authenticator.
+     * @param message An error message specified to the authenticator.
+     */
     public HYPRAuthnFailedException(String code, String message) {
 
         super(code, message);

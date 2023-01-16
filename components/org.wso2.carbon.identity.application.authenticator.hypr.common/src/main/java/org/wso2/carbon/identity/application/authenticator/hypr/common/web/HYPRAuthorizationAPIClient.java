@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+ * Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -141,12 +141,23 @@ public class HYPRAuthorizationAPIClient {
         }
     }
 
-    public static StateResponse getAuthenticationStatus(String baseURL, String apiToken, String requestID)
+    /**
+     * Call the HYPR server API to retrieve the authentication status of the user.
+     *
+     * @param baseUrl   The baseURL provided from the HYPR.
+     * @param apiToken  The API token generated from the application created via the HYPR control center.
+     * @param requestId  A unique identifier provided by HYPR upon successfully initiating the push notification to the
+     *                  registered devices.
+     * @return StateResponse
+     * @throws HYPRAuthnFailedException Exception throws when there is an error occurred when receiving the
+     * authentication status.
+     */
+    public static StateResponse getAuthenticationStatus(String baseUrl, String apiToken, String requestId)
             throws HYPRAuthnFailedException {
 
         // URL : {{baseUrl}}/rp/api/oob/client/authentication/requests/{{requestId}}
-        String authenticationStatusPollURL = String.format("%s%s%s", baseURL,
-                HyprAuthenticatorConstants.HYPR.HYPR_AUTH_STATUS_CHECK_PATH, requestID);
+        String authenticationStatusPollURL = String.format("%s%s%s", baseUrl,
+                HyprAuthenticatorConstants.HYPR.HYPR_AUTH_STATUS_CHECK_PATH, requestId);
 
         try {
             HttpResponse response = HYPRWebUtils.httpGet(apiToken, authenticationStatusPollURL);
