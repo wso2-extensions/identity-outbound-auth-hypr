@@ -37,9 +37,9 @@ import static java.util.Objects.isNull;
 public class HTTPClientManager {
 
     private static final Log LOG = LogFactory.getLog(HTTPClientManager.class);
-    private static final int HTTP_CONNECTION_TIMEOUT = 300;
-    private static final int HTTP_READ_TIMEOUT = 300;
-    private static final int HTTP_CONNECTION_REQUEST_TIMEOUT = 300;
+    private static final int HTTP_CONNECTION_TIMEOUT = 3000;
+    private static final int HTTP_READ_TIMEOUT = 3000;
+    private static final int HTTP_CONNECTION_REQUEST_TIMEOUT = 3000;
     private static final int DEFAULT_MAX_CONNECTIONS = 20;
     private static HTTPClientManager instance;
     private final CloseableHttpClient httpClient;

@@ -306,7 +306,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             if (ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode().equals(e.getErrorCode())) {
                 LOG.error(e.getErrorCode() + " : " + e.getMessage());
                 redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.INVALID_TOKEN);
-            } else { // TODO: Handle ConnectTimeoutException
+            } else {
                 throw e;
             }
         }
