@@ -36,6 +36,7 @@ import org.wso2.carbon.identity.application.authenticator.hypr.common.model.Devi
 import org.wso2.carbon.identity.application.authenticator.hypr.common.model.RegisteredDevicesResponse;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.web.HYPRAuthorizationAPIClient;
 import org.wso2.carbon.identity.application.common.model.Property;
+import org.wso2.carbon.identity.central.log.mgt.utils.LoggerUtils;
 import org.wso2.carbon.identity.core.ServiceURLBuilder;
 import org.wso2.carbon.identity.core.URLBuilderException;
 
@@ -252,9 +253,10 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                 return;
             }
 
-            // TODO : Try to hash the username as it is a sensitive information.
-//            String uuid = IdentityUtil.getInitiatorId(username, context.getTenantDomain());
             String uuid = username;
+            if (LoggerUtils.isLogMaskingEnable) {
+                uuid = LoggerUtils.getMaskedContent(uuid);
+            }
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Successfully retrieved the registered devices for the user " + uuid);
@@ -304,7 +306,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             if (ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode().equals(e.getErrorCode())) {
                 LOG.error(e.getErrorCode() + " : " + e.getMessage());
                 redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.INVALID_TOKEN);
-            } else {
+            } else { // TODO: Handle ConnectTimeoutException
                 throw e;
             }
         }
