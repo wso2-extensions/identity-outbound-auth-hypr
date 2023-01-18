@@ -54,7 +54,7 @@ public class HYPRWebUtils {
         HttpGet request = new HttpGet(requestURL);
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiToken);
 
-        CloseableHttpClient client = HTTPClientManager.getInstance().getClient();
+        CloseableHttpClient client = HTTPClientManager.getInstance().getHttpClient();
         try (CloseableHttpResponse response = client.execute(request)) {
             return toHttpResponse(response);
         }
@@ -77,7 +77,7 @@ public class HYPRWebUtils {
         request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
         request.setEntity(new StringEntity(requestBody, ContentType.APPLICATION_JSON));
 
-        CloseableHttpClient client = HTTPClientManager.getInstance().getClient();
+        CloseableHttpClient client = HTTPClientManager.getInstance().getHttpClient();
         try (CloseableHttpResponse response = client.execute(request)) {
             return toHttpResponse(response);
         }

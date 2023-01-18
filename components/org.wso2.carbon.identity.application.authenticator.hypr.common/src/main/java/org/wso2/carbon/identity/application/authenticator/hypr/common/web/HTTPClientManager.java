@@ -41,8 +41,9 @@ public class HTTPClientManager {
     private static final int HTTP_READ_TIMEOUT = 3000;
     private static final int HTTP_CONNECTION_REQUEST_TIMEOUT = 3000;
     private static final int DEFAULT_MAX_CONNECTIONS = 20;
-    private static HTTPClientManager instance;
+    private static volatile HTTPClientManager httpClientManagerInstance;
     private final CloseableHttpClient httpClient;
+    private static final Object mutex = new Object();
 
     /**
      * Creates a client manager.
@@ -69,11 +70,19 @@ public class HTTPClientManager {
      *
      * @throws HYPRClientException Exception thrown when an error occurred when creating HTTP client.
      */
-    public static synchronized HTTPClientManager getInstance() throws HYPRClientException {
-        if (instance == null) {
-            instance = new HTTPClientManager();
+    public static HTTPClientManager getInstance() throws HYPRClientException {
+
+        HTTPClientManager localRef = httpClientManagerInstance;
+
+        if (localRef == null) {
+            synchronized (mutex) {
+                localRef = httpClientManagerInstance;
+                if (localRef == null) {
+                    httpClientManagerInstance = localRef = new HTTPClientManager();
+                }
+            }
         }
-        return instance;
+        return localRef;
     }
 
     /**
@@ -82,7 +91,7 @@ public class HTTPClientManager {
      * @return CloseableHttpClient instance.
      * @throws HYPRClientException Exception thrown when an error occurred when getting HTTP client.
      */
-    public CloseableHttpClient getClient() throws HYPRClientException {
+    public CloseableHttpClient getHttpClient() throws HYPRClientException {
 
         if (isNull(httpClient)) {
             throw handleServerException(
