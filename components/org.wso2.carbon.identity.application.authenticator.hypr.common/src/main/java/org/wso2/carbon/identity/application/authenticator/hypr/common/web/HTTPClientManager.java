@@ -19,8 +19,6 @@
 package org.wso2.carbon.identity.application.authenticator.hypr.common.web;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -36,14 +34,12 @@ import static java.util.Objects.isNull;
  */
 public class HTTPClientManager {
 
-    private static final Log LOG = LogFactory.getLog(HTTPClientManager.class);
     private static final int HTTP_CONNECTION_TIMEOUT = 3000;
     private static final int HTTP_READ_TIMEOUT = 3000;
     private static final int HTTP_CONNECTION_REQUEST_TIMEOUT = 3000;
     private static final int DEFAULT_MAX_CONNECTIONS = 20;
     private static volatile HTTPClientManager httpClientManagerInstance;
     private final CloseableHttpClient httpClient;
-    private static final Object mutex = new Object();
 
     /**
      * Creates a client manager.
@@ -72,17 +68,14 @@ public class HTTPClientManager {
      */
     public static HTTPClientManager getInstance() throws HYPRClientException {
 
-        HTTPClientManager localRef = httpClientManagerInstance;
-
-        if (localRef == null) {
-            synchronized (mutex) {
-                localRef = httpClientManagerInstance;
-                if (localRef == null) {
-                    httpClientManagerInstance = localRef = new HTTPClientManager();
+        if (httpClientManagerInstance == null) {
+            synchronized (HTTPClientManager.class) {
+                if (httpClientManagerInstance == null) {
+                    httpClientManagerInstance = new HTTPClientManager();
                 }
             }
         }
-        return localRef;
+        return httpClientManagerInstance;
     }
 
     /**
@@ -113,14 +106,11 @@ public class HTTPClientManager {
 
     private PoolingHttpClientConnectionManager createPoolingConnectionManager() throws IOException {
 
-        int maxConnections = DEFAULT_MAX_CONNECTIONS;
-        int maxConnectionsPerRoute = DEFAULT_MAX_CONNECTIONS;
-
         PoolingHttpClientConnectionManager poolingHttpClientConnectionMgr = new PoolingHttpClientConnectionManager();
         // Increase max total connection to 20.
-        poolingHttpClientConnectionMgr.setMaxTotal(maxConnections);
+        poolingHttpClientConnectionMgr.setMaxTotal(DEFAULT_MAX_CONNECTIONS);
         // Increase default max connection per route to 20.
-        poolingHttpClientConnectionMgr.setDefaultMaxPerRoute(maxConnectionsPerRoute);
+        poolingHttpClientConnectionMgr.setDefaultMaxPerRoute(DEFAULT_MAX_CONNECTIONS);
         return poolingHttpClientConnectionMgr;
     }
 

@@ -97,7 +97,7 @@ public class HYPRWebUtils {
      *
      * @return A randomly generated pin.
      */
-    public static int generateRandomPIN() {
+    private static int generateRandomPIN() {
 
         return 100000 + new Random().nextInt(900000);
     }
@@ -109,7 +109,7 @@ public class HYPRWebUtils {
      * @return hashCode     The hash code  of the provided text.
      * @throws NoSuchAlgorithmException Exception thrown when an error occurred during getting the SHA-256 algorithm.
      */
-    public static String doSha256(final String stringToHash) throws NoSuchAlgorithmException {
+    private static String doSha256(final String stringToHash) throws NoSuchAlgorithmException {
 
         final MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(stringToHash.getBytes());
@@ -123,5 +123,15 @@ public class HYPRWebUtils {
             hexString.append(hex);
         }
         return hexString.toString();
+    }
+
+    /**
+     * Generate a random pin and get its hashcode.
+     *
+     * @return hashCode     The hash code  of the generated random pin.
+     * @throws NoSuchAlgorithmException Exception thrown when an error occurred during getting the SHA-256 algorithm.
+     */
+    public static String getRandomPinSha256() throws NoSuchAlgorithmException {
+        return doSha256(String.valueOf(generateRandomPIN()));
     }
 }

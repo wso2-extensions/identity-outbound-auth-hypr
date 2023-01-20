@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authenticator.hypr.common.model;
 
+import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.web.HYPRWebUtils;
 
 import java.security.NoSuchAlgorithmException;
@@ -29,7 +30,7 @@ import java.util.Map;
 public class DeviceAuthenticationRequest {
 
     private final String namedUser;
-    private final String machine;
+    private final String machine = HyprAuthenticatorConstants.HYPR.MACHINE_VALUE;
     private final String machineId;
     private final String appId;
     private final String sessionNonce;
@@ -44,11 +45,10 @@ public class DeviceAuthenticationRequest {
         this.namedUser = namedUser;
         this.machineId = machineId;
         this.appId = appId;
-        this.machine = "WEB";
-        this.sessionNonce = HYPRWebUtils.doSha256(String.valueOf(HYPRWebUtils.generateRandomPIN()));
-        this.deviceNonce = HYPRWebUtils.doSha256(String.valueOf(HYPRWebUtils.generateRandomPIN()));
-        this.serviceNonce = HYPRWebUtils.doSha256(String.valueOf(HYPRWebUtils.generateRandomPIN()));
-        this.serviceHmac = HYPRWebUtils.doSha256(String.valueOf(HYPRWebUtils.generateRandomPIN()));
+        this.sessionNonce = HYPRWebUtils.getRandomPinSha256();
+        this.deviceNonce = HYPRWebUtils.getRandomPinSha256();
+        this.serviceNonce = HYPRWebUtils.getRandomPinSha256();
+        this.serviceHmac = HYPRWebUtils.getRandomPinSha256();
     }
 
     public String getNamedUser() {

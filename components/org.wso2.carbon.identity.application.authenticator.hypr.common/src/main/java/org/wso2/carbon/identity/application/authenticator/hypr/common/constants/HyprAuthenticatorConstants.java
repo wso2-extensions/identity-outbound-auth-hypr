@@ -164,6 +164,9 @@ public class HyprAuthenticatorConstants {
         public static final String SERVICE_NONCE = "serviceNonce";
         public static final String SERVICE_MAC = "serviceHmac";
 
+        // HYPR API Parameters value
+        public static final String MACHINE_VALUE = "WEB";
+
         // REST API Parameters
         public static final String AUTH_STATUS = "authStatus";
         public static final String AUTH_REQUEST_ID = "authRequestId";

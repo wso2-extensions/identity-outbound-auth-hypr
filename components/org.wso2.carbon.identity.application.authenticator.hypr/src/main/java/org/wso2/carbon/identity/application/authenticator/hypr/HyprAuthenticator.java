@@ -253,13 +253,10 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                 return;
             }
 
-            String uuid = username;
-            if (LoggerUtils.isLogMaskingEnable) {
-                uuid = LoggerUtils.getMaskedContent(uuid);
-            }
+            String maskedUsername = getMaskedUsername(username);
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Successfully retrieved the registered devices for the user " + uuid);
+                LOG.debug("Successfully retrieved the registered devices for the user " + maskedUsername);
             }
 
             // Extract the user specific machineId which is a unique ID across all the registered devices under a
@@ -268,7 +265,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
 
             if (StringUtils.isBlank(machineId)) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Retrieved machine ID for the user " + uuid + " is either null or empty.");
+                    LOG.debug("Retrieved machine ID for the user " + maskedUsername + " is either null or empty.");
                 }
                 redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
                 return;
@@ -282,7 +279,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
 
             if (StringUtils.isBlank(requestId)) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Retrieved request ID for the authentication request for the user " + uuid +
+                    LOG.debug("Retrieved request ID for the authentication request for the user " + maskedUsername +
                             " is either null or empty.");
                 }
                 redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
@@ -290,7 +287,8 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             }
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Successfully sent a push notification for the registered devices of the user " + uuid);
+                LOG.debug("Successfully sent a push notification for the registered devices of the user " +
+                        maskedUsername);
             }
 
             // Store the HYPR context information.
@@ -310,6 +308,13 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                 throw e;
             }
         }
+    }
+
+    private String getMaskedUsername(String username) {
+        if (LoggerUtils.isLogMaskingEnable) {
+            return LoggerUtils.getMaskedContent(username);
+        }
+        return username;
     }
 
     private void validateHYPRConfiguration(String baseUrl, String appId, String apiToken)
