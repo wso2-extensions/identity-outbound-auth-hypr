@@ -45,8 +45,8 @@ public class HYPRClientException extends Exception {
      * An overloaded constructor which is used to throw an error code, error message and error description once the
      * HYPR connector unable to proceed the authentication with HYPR due to HTTP client connection issue.
      *
-     * @param code    An error code specified to the authenticator.
-     * @param message An error message specified to the authenticator.
+     * @param code        An error code specified to the authenticator.
+     * @param message     An error message specified to the authenticator.
      * @param description An in-detail error description specified to the authenticator.
      */
     public HYPRClientException(String message, String description, String code) {
@@ -61,10 +61,10 @@ public class HYPRClientException extends Exception {
      * throwable cause once the HYPR connector unable to proceed the authentication with HYPR due to
      * HTTP client connection issue.
      *
-     * @param code    An error code specified to the authenticator.
-     * @param message An error message specified to the authenticator.
+     * @param code        An error code specified to the authenticator.
+     * @param message     An error message specified to the authenticator.
      * @param description An in-detail error description specified to the authenticator.
-     * @param cause Thrown exception.
+     * @param cause       Thrown exception.
      */
     public HYPRClientException(String message, String description, String code, Throwable cause) {
 

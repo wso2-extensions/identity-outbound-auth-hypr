@@ -55,7 +55,8 @@ public class HYPRAuthorizationAPIClient {
                                                                         String username)
             throws HYPRAuthnFailedException {
 
-        // Device info URL : {{baseUrl}}/rp/ api/oob/client/authentication/{{appId}}/{{username}}/devices
+        // Device info URL :
+        // {{baseUrl}}/rp/ api/oob/client/authentication/{{appId}}/{{username}}/devices
         String deviceInfoURL = String.format("%s%s%s/%s/devices", baseUrl,
                 HyprAuthenticatorConstants.HYPR.HYPR_USER_DEVICE_INFO_PATH, appId, username);
 
@@ -100,8 +101,8 @@ public class HYPRAuthorizationAPIClient {
      * @throws HYPRAuthnFailedException Exception throws when there is an error occurred when initiating the
      *                                  authentication with HYPR server
      */
-    public static DeviceAuthenticationResponse initiateAuthenticationRequest
-    (String baseUrl, String appId, String apiToken, String username, String machineId)
+    public static DeviceAuthenticationResponse initiateAuthenticationRequest(
+            String baseUrl, String appId, String apiToken, String username, String machineId)
             throws HYPRAuthnFailedException {
 
         try {
@@ -136,8 +137,8 @@ public class HYPRAuthorizationAPIClient {
             throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
                     .AUTHENTICATION_FAILED_RETRIEVING_HASH_ALGORITHM_FAILURE, e);
         } catch (HYPRClientException e) {
-        throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
-                .SERVER_ERROR_CREATING_HTTP_CLIENT, e);
+            throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
+                    .SERVER_ERROR_CREATING_HTTP_CLIENT, e);
         }
     }
 
@@ -146,16 +147,17 @@ public class HYPRAuthorizationAPIClient {
      *
      * @param baseUrl   The baseURL provided from the HYPR.
      * @param apiToken  The API token generated from the application created via the HYPR control center.
-     * @param requestId  A unique identifier provided by HYPR upon successfully initiating the push notification to the
+     * @param requestId A unique identifier provided by HYPR upon successfully initiating the push notification to the
      *                  registered devices.
      * @return StateResponse
      * @throws HYPRAuthnFailedException Exception throws when there is an error occurred when receiving the
-     * authentication status.
+     *                                  authentication status.
      */
     public static StateResponse getAuthenticationStatus(String baseUrl, String apiToken, String requestId)
             throws HYPRAuthnFailedException {
 
-        // URL : {{baseUrl}}/rp/api/oob/client/authentication/requests/{{requestId}}
+        // Get authentication status URL :
+        // {{baseUrl}}/rp/api/oob/client/authentication/requests/{{requestId}}
         String authenticationStatusPollURL = String.format("%s%s%s", baseUrl,
                 HyprAuthenticatorConstants.HYPR.HYPR_AUTH_STATUS_CHECK_PATH, requestId);
 
@@ -183,7 +185,7 @@ public class HYPRAuthorizationAPIClient {
 
         } catch (IOException e) {
             throw getHyprAuthnFailedException(HyprAuthenticatorConstants
-                    .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE , e);
+                    .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE, e);
         } catch (HYPRClientException e) {
             throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
                     .SERVER_ERROR_CREATING_HTTP_CLIENT, e);

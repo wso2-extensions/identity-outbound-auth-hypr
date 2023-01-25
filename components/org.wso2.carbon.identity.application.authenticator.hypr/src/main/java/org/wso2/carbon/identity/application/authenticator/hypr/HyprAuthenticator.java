@@ -186,8 +186,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      * @throws HYPRAuthnFailedException Exception thrown while redirecting user to login page.
      */
     private void redirectHYPRLoginPage(HttpServletResponse response, String sessionDataKey,
-                                       HYPR.AuthenticationStatus authenticationStatus)
-            throws HYPRAuthnFailedException {
+                                       HYPR.AuthenticationStatus authenticationStatus) throws HYPRAuthnFailedException {
 
         try {
             ServiceURLBuilder hyprLoginPageURLBuilder = ServiceURLBuilder.create()
@@ -223,7 +222,6 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      */
     private void initiateHYPRAuthenticationRequest(HttpServletRequest request, HttpServletResponse response,
                                                    AuthenticationContext context) throws HYPRAuthnFailedException {
-
 
         String username = request.getParameter(HYPR.USERNAME);
         String sessionDataKey = request.getParameter(HYPR.SESSION_DATA_KEY);

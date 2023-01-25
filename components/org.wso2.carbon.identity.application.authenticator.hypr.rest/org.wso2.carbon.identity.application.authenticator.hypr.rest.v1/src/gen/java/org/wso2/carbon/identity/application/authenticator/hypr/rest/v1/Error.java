@@ -22,30 +22,32 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+
 import javax.validation.constraints.*;
 
 
 import io.swagger.annotations.*;
+
 import java.util.Objects;
 import javax.validation.Valid;
 import javax.xml.bind.annotation.*;
 
-public class Error  {
-  
+public class Error {
+
     private String code;
     private String message;
     private String description;
     private String traceId;
 
     /**
-    * An error code.
-    **/
+     * An error code.
+     **/
     public Error code(String code) {
 
         this.code = code;
         return this;
     }
-    
+
     @ApiModelProperty(example = "some_error_code", required = true, value = "An error code.")
     @JsonProperty("code")
     @Valid
@@ -54,19 +56,20 @@ public class Error  {
     public String getCode() {
         return code;
     }
+
     public void setCode(String code) {
         this.code = code;
     }
 
     /**
-    * An error message.
-    **/
+     * An error message.
+     **/
     public Error message(String message) {
 
         this.message = message;
         return this;
     }
-    
+
     @ApiModelProperty(example = "Some Error Message", required = true, value = "An error message.")
     @JsonProperty("message")
     @Valid
@@ -75,48 +78,50 @@ public class Error  {
     public String getMessage() {
         return message;
     }
+
     public void setMessage(String message) {
         this.message = message;
     }
 
     /**
-    * An error description.
-    **/
+     * An error description.
+     **/
     public Error description(String description) {
 
         this.description = description;
         return this;
     }
-    
+
     @ApiModelProperty(example = "Some Error Description", value = "An error description.")
     @JsonProperty("description")
     @Valid
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
 
     /**
-    * An error trace identifier.
-    **/
+     * An error trace identifier.
+     **/
     public Error traceId(String traceId) {
 
         this.traceId = traceId;
         return this;
     }
-    
+
     @ApiModelProperty(example = "Some Correlation for Error Instance", value = "An error trace identifier.")
     @JsonProperty("traceId")
     @Valid
     public String getTraceId() {
         return traceId;
     }
+
     public void setTraceId(String traceId) {
         this.traceId = traceId;
     }
-
 
 
     @Override
@@ -130,9 +135,9 @@ public class Error  {
         }
         Error error = (Error) o;
         return Objects.equals(this.code, error.code) &&
-            Objects.equals(this.message, error.message) &&
-            Objects.equals(this.description, error.description) &&
-            Objects.equals(this.traceId, error.traceId);
+                Objects.equals(this.message, error.message) &&
+                Objects.equals(this.description, error.description) &&
+                Objects.equals(this.traceId, error.traceId);
     }
 
     @Override
@@ -145,7 +150,7 @@ public class Error  {
 
         StringBuilder sb = new StringBuilder();
         sb.append("class Error {\n");
-        
+
         sb.append("    code: ").append(toIndentedString(code)).append("\n");
         sb.append("    message: ").append(toIndentedString(message)).append("\n");
         sb.append("    description: ").append(toIndentedString(description)).append("\n");
@@ -155,9 +160,9 @@ public class Error  {
     }
 
     /**
-    * Convert the given object to string with each line indented by 4 spaces
-    * (except the first line).
-    */
+     * Convert the given object to string with each line indented by 4 spaces
+     * (except the first line).
+     */
     private String toIndentedString(java.lang.Object o) {
 
         if (o == null) {
@@ -166,4 +171,3 @@ public class Error  {
         return o.toString().replace("\n", "\n");
     }
 }
-

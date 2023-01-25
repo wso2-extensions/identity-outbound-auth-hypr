@@ -34,6 +34,7 @@ import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.StatusRes
 import java.util.HashMap;
 import java.util.Map;
 import javax.ws.rs.core.Response;
+
 /**
  * The ServerHYPRAuthenticatorService class contains all the functional tasks handled by the HYPR REST API,
  * such as getting the authentication status of a user provided the session key.

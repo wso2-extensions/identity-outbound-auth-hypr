@@ -73,7 +73,7 @@ public class HyprAuthenticatorConstants {
         SERVER_ERROR_GETTING_HTTP_CLIENT("65019", "Error while getting the http client.",
                 "Error preparing http client to publish events."),
         CLIENT_ERROR_INVALID_SESSION_KEY("60001", "Invalid session key provided.",
-                                                 "The provided session key doesn't exist.");
+                "The provided session key doesn't exist.");
         private final String code;
         private final String message;
         private final String description;

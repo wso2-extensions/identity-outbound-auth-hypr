@@ -23,10 +23,10 @@ import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.impl.Auth
 
 public class AuthenticationApiServiceFactory {
 
-   private final static AuthenticationApiService service = new AuthenticationApiServiceImpl();
+    private final static AuthenticationApiService service = new AuthenticationApiServiceImpl();
 
-   public static AuthenticationApiService getAuthenticationApi()
-   {
-      return service;
-   }
+    public static AuthenticationApiService getAuthenticationApi() {
+
+        return service;
+    }
 }

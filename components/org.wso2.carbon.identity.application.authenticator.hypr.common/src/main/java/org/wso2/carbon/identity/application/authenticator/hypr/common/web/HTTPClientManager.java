@@ -27,6 +27,7 @@ import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.
 import org.wso2.carbon.identity.application.authenticator.hypr.common.exception.HYPRClientException;
 
 import java.io.IOException;
+
 import static java.util.Objects.isNull;
 
 /**

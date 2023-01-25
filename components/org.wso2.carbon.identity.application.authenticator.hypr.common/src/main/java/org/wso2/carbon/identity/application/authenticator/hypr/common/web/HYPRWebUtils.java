@@ -46,7 +46,7 @@ public class HYPRWebUtils {
      * @param apiToken   API token provided by HYPR.
      * @param requestURL The URL to which the GET request should be sent.
      * @return httpResponse         The response received from the HTTP call.
-     * @throws IOException Exception thrown when an error occurred during extracting the HTTP response content.
+     * @throws IOException         Exception thrown when an error occurred during extracting the HTTP response content.
      * @throws HYPRClientException Exception thrown when an error occurred with the HTTP client connection.
      */
     public static HttpResponse httpGet(String apiToken, String requestURL) throws IOException, HYPRClientException {
@@ -67,11 +67,12 @@ public class HYPRWebUtils {
      * @param requestURL  The URL to which the POST request should be sent.
      * @param requestBody A hashmap that includes the parameters to be sent through the request.
      * @return httpResponse         The response received from the HTTP call.
-     * @throws IOException Exception thrown when an error occurred during extracting the HTTP response content.
+     * @throws IOException         Exception thrown when an error occurred during extracting the HTTP response content.
      * @throws HYPRClientException Exception thrown when an error occurred with the HTTP client connection.
      */
     public static HttpResponse httpPost(String apiToken, String requestURL, String requestBody)
             throws IOException, HYPRClientException {
+
         HttpPost request = new HttpPost(requestURL);
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiToken);
         request.setHeader(HttpHeaders.CONTENT_TYPE, "application/json");
@@ -132,6 +133,7 @@ public class HYPRWebUtils {
      * @throws NoSuchAlgorithmException Exception thrown when an error occurred during getting the SHA-256 algorithm.
      */
     public static String getRandomPinSha256() throws NoSuchAlgorithmException {
+
         return doSha256(String.valueOf(generateRandomPIN()));
     }
 }

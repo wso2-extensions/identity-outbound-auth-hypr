@@ -31,7 +31,6 @@ public class RegisteredDevice {
     private String machineId;
     private String namedUser;
 
-
     public String getDeviceId() {
 
         return this.deviceId;

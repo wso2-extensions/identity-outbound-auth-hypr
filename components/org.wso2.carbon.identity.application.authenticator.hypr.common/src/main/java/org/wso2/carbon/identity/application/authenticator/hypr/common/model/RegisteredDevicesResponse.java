@@ -29,10 +29,12 @@ public class RegisteredDevicesResponse {
     private final List<RegisteredDevice> registeredDevices;
 
     public RegisteredDevicesResponse(List<RegisteredDevice> registeredDevices) {
+
         this.registeredDevices = registeredDevices;
     }
 
     public List<RegisteredDevice> getRegisteredDevices() {
+
         return registeredDevices;
     }
 }

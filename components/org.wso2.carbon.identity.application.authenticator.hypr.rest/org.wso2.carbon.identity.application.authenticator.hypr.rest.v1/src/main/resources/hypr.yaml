@@ -78,7 +78,7 @@ components:
     #-----------------------------------------------------
     StatusResponse:
       type: object
-      properties :
+      properties:
         sessionKey:
           type: string
           example: bf98f2b5caca07c703d2401f4298967d9829ded2978dffc04c4b95cf61f87a49

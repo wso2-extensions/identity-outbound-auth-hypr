@@ -22,14 +22,17 @@ import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.*;
 import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.*;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
+
 import java.io.InputStream;
 import java.util.List;
+
 import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.Error;
 import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.StatusResponse;
+
 import javax.ws.rs.core.Response;
 
 
 public interface AuthenticationApiService {
 
-      public Response getAuthenticationStatus(String sessionKey);
+    public Response getAuthenticationStatus(String sessionKey);
 }

@@ -57,6 +57,7 @@ public class DeviceAuthenticationRequest {
     }
 
     public String getMachine() {
+
         return machine;
     }
 

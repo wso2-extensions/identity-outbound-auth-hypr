@@ -21,6 +21,7 @@ package org.wso2.carbon.identity.application.authenticator.hypr.rest.v1;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
+
 import java.io.InputStream;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.Authentic
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+
 import io.swagger.annotations.*;
 
 import javax.validation.constraints.*;
@@ -38,7 +40,7 @@ import javax.validation.constraints.*;
 @Path("/authentication")
 @Api(description = "The authentication API")
 
-public class AuthenticationApi  {
+public class AuthenticationApi {
 
     @Autowired
     private AuthenticationApiService delegate;
@@ -46,17 +48,17 @@ public class AuthenticationApi  {
     @Valid
     @GET
     @Path("/status/{sessionKey}")
-    
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Retrieve user authentication status.", notes = "This API is used to retrieve a user's authentication status when logging in via HYPR.", response = StatusResponse.class, tags={ "HYPR Authentication" })
-    @ApiResponses(value = { 
-        @ApiResponse(code = 200, message = "OK", response = StatusResponse.class),
-        @ApiResponse(code = 400, message = "Invalid input in the request.", response = Error.class),
-        @ApiResponse(code = 500, message = "Internal server error.", response = Error.class)
-    })
-    public Response getAuthenticationStatus(@ApiParam(value = "sessionKey provided by the HYPR Authenticator during the authentication initiation.",required=true) @PathParam("sessionKey") String sessionKey) {
 
-        return delegate.getAuthenticationStatus(sessionKey );
+    @Produces({"application/json"})
+    @ApiOperation(value = "Retrieve user authentication status.", notes = "This API is used to retrieve a user's authentication status when logging in via HYPR.", response = StatusResponse.class, tags = {"HYPR Authentication"})
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = StatusResponse.class),
+            @ApiResponse(code = 400, message = "Invalid input in the request.", response = Error.class),
+            @ApiResponse(code = 500, message = "Internal server error.", response = Error.class)
+    })
+    public Response getAuthenticationStatus(@ApiParam(value = "sessionKey provided by the HYPR Authenticator during the authentication initiation.", required = true) @PathParam("sessionKey") String sessionKey) {
+
+        return delegate.getAuthenticationStatus(sessionKey);
     }
 
 }

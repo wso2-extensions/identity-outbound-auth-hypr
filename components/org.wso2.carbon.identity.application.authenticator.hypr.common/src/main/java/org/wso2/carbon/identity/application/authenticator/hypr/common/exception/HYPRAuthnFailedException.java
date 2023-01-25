@@ -32,7 +32,7 @@ public class HYPRAuthnFailedException extends AuthenticationFailedException {
      *
      * @param code    An error code specified to the authenticator.
      * @param message An error message specified to the authenticator.
-     * @param cause Thrown exception.
+     * @param cause   Thrown exception.
      */
     public HYPRAuthnFailedException(String code, String message, Throwable cause) {
 

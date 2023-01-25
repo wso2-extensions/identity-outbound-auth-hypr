@@ -29,11 +29,6 @@ import java.util.UUID;
 public class Util {
 
     /**
-     * Constructor for Util class.
-     */
-    private Util() {}
-
-    /**
      * Get correlation id of current thread.
      *
      * @return Correlation-id.
