@@ -169,7 +169,6 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                                                  AuthenticationContext context) throws AuthenticationFailedException {
 
         try {
-            String sessionDataKey = request.getParameter(HYPR.SESSION_DATA_KEY);
             redirectHYPRLoginPage(response, context, null);
         } catch (AuthenticationFailedException e) {
             String errorMessage = "Error occurred when trying to redirect user to the login page.";
