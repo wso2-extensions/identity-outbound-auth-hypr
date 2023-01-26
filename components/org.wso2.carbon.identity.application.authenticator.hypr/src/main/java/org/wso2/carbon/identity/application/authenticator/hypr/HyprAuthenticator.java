@@ -170,7 +170,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
 
         try {
             String sessionDataKey = request.getParameter(HYPR.SESSION_DATA_KEY);
-            redirectHYPRLoginPage(response, sessionDataKey, null);
+            redirectHYPRLoginPage(response, context, null);
         } catch (AuthenticationFailedException e) {
             String errorMessage = "Error occurred when trying to redirect user to the login page.";
             throw new AuthenticationFailedException(errorMessage, e);
@@ -181,19 +181,19 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      * Redirect the user to the HYPR login page with authentication status and messages, if there is any.
      *
      * @param response             The response that is received to the authenticator.
-     * @param sessionDataKey       The session data key extracted from the request.
+     * @param context              The Authentication context received by the authenticator.
      * @param authenticationStatus The authentication status of the user when authenticating via HYPR.
      * @throws HYPRAuthnFailedException Exception thrown while redirecting user to login page.
      */
-    private void redirectHYPRLoginPage(HttpServletResponse response, String sessionDataKey,
-                                       HYPR.AuthenticationStatus authenticationStatus) throws HYPRAuthnFailedException {
+    private void redirectHYPRLoginPage(HttpServletResponse response, AuthenticationContext context,
+                                       HYPR.AuthenticationStatus authenticationStatus)
+            throws HYPRAuthnFailedException {
 
         try {
             ServiceURLBuilder hyprLoginPageURLBuilder = ServiceURLBuilder.create()
                     .addPath(HYPR.HYPR_LOGIN_PAGE)
-                    .addParameter(HYPR.SESSION_DATA_KEY, sessionDataKey)
-                    .addParameter("AuthenticatorName",
-                            HYPR.AUTHENTICATOR_FRIENDLY_NAME);
+                    .addParameter(HYPR.SESSION_DATA_KEY, context.getContextIdentifier())
+                    .addParameter("AuthenticatorName", HYPR.AUTHENTICATOR_FRIENDLY_NAME);
 
             if (authenticationStatus != null) {
                 hyprLoginPageURLBuilder.addParameter("status", String.valueOf(authenticationStatus.getName()));
@@ -234,7 +234,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
 
         // Validate username and the HYPR configurable parameters.
         if (StringUtils.isBlank(username)) {
-            redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.INVALID_REQUEST);
+            redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.INVALID_REQUEST);
             return;
         }
         validateHYPRConfiguration(baseUrl, appId, apiToken);
@@ -247,7 +247,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             // If an empty array received for the registered devices redirect user back to the login page and
             // display "Invalid username" since a HYPR user cannot exist without a set of registered devices.
             if (registeredDevicesResponse.getRegisteredDevices().isEmpty()) {
-                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.INVALID_REQUEST);
+                redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.INVALID_REQUEST);
                 return;
             }
 
@@ -265,7 +265,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Retrieved machine ID for the user " + maskedUsername + " is either null or empty.");
                 }
-                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
+                redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.FAILED);
                 return;
             }
 
@@ -280,7 +280,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                     LOG.debug("Retrieved request ID for the authentication request for the user " + maskedUsername +
                             " is either null or empty.");
                 }
-                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
+                redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.FAILED);
                 return;
             }
 
@@ -295,13 +295,13 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             context.setProperty(HYPR.USERNAME, username);
 
             // Inform the user that the push notification has been sent to the registered device.
-            redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.PENDING);
+            redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.PENDING);
 
         } catch (HYPRAuthnFailedException e) {
             // Handle invalid or expired token.
             if (ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode().equals(e.getErrorCode())) {
                 LOG.error(e.getErrorCode() + " : " + e.getMessage());
-                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.INVALID_TOKEN);
+                redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.INVALID_TOKEN);
             } else {
                 throw e;
             }
@@ -381,7 +381,6 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
 
         } else if (context.getProperty(HYPR.AUTH_STATUS) != null) {
             // if intermediate authentication request comes, then go through this flow.
-            String sessionDataKey = request.getParameter(HYPR.SESSION_DATA_KEY);
             String authStatus = (String) context.getProperty(HYPR.AUTH_STATUS);
 
             if (HYPR.AuthenticationStatus.COMPLETED.getName().equals(authStatus)) {
@@ -389,15 +388,15 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                 return AuthenticatorFlowStatus.SUCCESS_COMPLETED;
 
             } else if (HYPR.AuthenticationStatus.PENDING.getName().equals(authStatus)) {
-                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.PENDING);
+                redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.PENDING);
                 return AuthenticatorFlowStatus.INCOMPLETE;
 
             } else if (HYPR.AuthenticationStatus.CANCELED.getName().equals(authStatus)) {
-                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.CANCELED);
+                redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.CANCELED);
                 return AuthenticatorFlowStatus.INCOMPLETE;
 
             } else if (HYPR.AuthenticationStatus.FAILED.getName().equals(authStatus)) {
-                redirectHYPRLoginPage(response, sessionDataKey, HYPR.AuthenticationStatus.FAILED);
+                redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.FAILED);
                 return AuthenticatorFlowStatus.INCOMPLETE;
             }
         } else {
