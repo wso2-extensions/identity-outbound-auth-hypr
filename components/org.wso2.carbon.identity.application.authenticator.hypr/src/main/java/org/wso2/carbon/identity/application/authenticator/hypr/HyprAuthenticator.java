@@ -223,7 +223,6 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                                                    AuthenticationContext context) throws HYPRAuthnFailedException {
 
         String username = request.getParameter(HYPR.USERNAME);
-        String sessionDataKey = request.getParameter(HYPR.SESSION_DATA_KEY);
 
         // Extract the HYPR configurations.
         Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
