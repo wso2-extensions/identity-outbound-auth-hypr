@@ -192,7 +192,8 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             ServiceURLBuilder hyprLoginPageURLBuilder = ServiceURLBuilder.create()
                     .addPath(HYPR.HYPR_LOGIN_PAGE)
                     .addParameter(HYPR.SESSION_DATA_KEY, context.getContextIdentifier())
-                    .addParameter("AuthenticatorName", HYPR.AUTHENTICATOR_FRIENDLY_NAME);
+                    .addParameter("AuthenticatorName", HYPR.AUTHENTICATOR_FRIENDLY_NAME)
+                    .addParameter(HYPR.TENANT_DOMAIN, context.getTenantDomain());
 
             if (authenticationStatus != null) {
                 hyprLoginPageURLBuilder.addParameter("status", String.valueOf(authenticationStatus.getName()));

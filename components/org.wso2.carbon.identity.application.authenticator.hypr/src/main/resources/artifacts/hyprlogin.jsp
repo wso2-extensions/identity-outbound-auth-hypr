@@ -138,6 +138,7 @@
 
             const urlParams = new URLSearchParams(window.location.search);
             sessionDataKey = urlParams.get('sessionDataKey');
+            tenantDomain = urlParams.get('tenantDomain');
 
             if (urlParams.has("status")){
                 const status = urlParams.get("status");
@@ -187,7 +188,7 @@
                 if ((startTime + timeout) < now) {
                     handleAuthenticationTimedOut();
                 } else {
-                    $.ajax(authStatusCheckApiWithQueryParams + sessionDataKey, {
+                    $.ajax("/t/"+ tenantDomain + authStatusCheckApiWithQueryParams + sessionDataKey, {
                     method: GET,
                     headers: {
                         "Authorization": "<%=header%>"
