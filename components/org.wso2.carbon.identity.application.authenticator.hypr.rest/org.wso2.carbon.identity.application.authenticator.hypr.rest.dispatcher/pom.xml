@@ -113,12 +113,10 @@
         <dependency>
             <groupId>org.wso2.carbon.identity.outbound.auth.hypr</groupId>
             <artifactId>org.wso2.carbon.identity.application.authenticator.hypr.rest.v1</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity.outbound.auth.hypr</groupId>
             <artifactId>org.wso2.carbon.identity.application.authenticator.hypr.rest.common</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
