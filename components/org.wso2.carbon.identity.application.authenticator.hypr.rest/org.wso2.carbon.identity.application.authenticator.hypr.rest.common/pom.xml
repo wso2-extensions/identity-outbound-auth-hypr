@@ -82,6 +82,7 @@
         <dependency>
             <groupId>org.wso2.carbon.identity.outbound.auth.hypr</groupId>
             <artifactId>org.wso2.carbon.identity.application.authenticator.hypr.common</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
