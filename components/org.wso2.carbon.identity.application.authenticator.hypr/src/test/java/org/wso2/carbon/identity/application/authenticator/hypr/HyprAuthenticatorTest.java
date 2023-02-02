@@ -25,12 +25,14 @@ import org.mockito.Spy;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.exception.HYPRAuthnFailedException;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.model.DeviceAuthenticationResponse;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.model.RegisteredDevice;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.model.RegisteredDevicesResponse;
@@ -90,7 +92,7 @@ public class HyprAuthenticatorTest {
 
     @BeforeClass
     public void setUp() {
-// TODO ; enable and check
+
         autoCloseable = MockitoAnnotations.openMocks(this);
         hyprAuthenticator = new HyprAuthenticator();
         mockedHyprAuthorizationAPIClient = mockStatic(HYPRAuthorizationAPIClient.class);
@@ -339,6 +341,109 @@ public class HyprAuthenticatorTest {
 
         AuthenticatorFlowStatus status = spy.process(httpServletRequest, httpServletResponse, context);
         Assert.assertEquals(status, AuthenticatorFlowStatus.INCOMPLETE);
+    }
+
+    @Test( description = "Test case for process() method which handles either invalid or expired HYPR API token " +
+            "extracted from HYPR configurations upon a valid login request(i.e. a valid username)")
+    public void testProcessWithValidUsernameAndInvalidApiToken()
+            throws AuthenticationFailedException, LogoutFailedException {
+
+        doReturn(true).when(mockedHyprAuthenticator).canHandle(httpServletRequest);
+        when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.SESSION_DATA_KEY))
+                .thenReturn(sessionDataKey);
+        when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.USERNAME)).thenReturn(username);
+
+        Map<String, String[]> parameterMap = new HashMap<>();
+        parameterMap.put(HyprAuthenticatorConstants.HYPR.USERNAME, new String[]{username});
+        when(httpServletRequest.getParameterMap()).thenReturn(parameterMap);
+
+        mockAuthenticatorContext();
+
+        HyprAuthenticatorConstants.ErrorMessages errorMessage =
+                HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE;
+
+        mockedHyprAuthorizationAPIClient
+                .when(() -> HYPRAuthorizationAPIClient.getRegisteredDevicesRequest(baseUrl, appID, apiToken, username))
+                .thenThrow(new HYPRAuthnFailedException(
+                        errorMessage.getCode(), errorMessage.getMessage()));
+
+        mockServiceURLBuilder();
+
+        AuthenticatorFlowStatus status = spy.process(httpServletRequest, httpServletResponse, context);
+        Assert.assertEquals(status, AuthenticatorFlowStatus.INCOMPLETE);
+    }
+
+    @DataProvider(name = "HYPRAuthnFailedExceptionMessageProviders")
+    public Object[][] getHyprAuthnFailedExceptionMessageProviders() {
+
+        return new HyprAuthenticatorConstants.ErrorMessages[][]{
+                {HyprAuthenticatorConstants.ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE},
+                {HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_CREATING_HTTP_CLIENT},
+                {HyprAuthenticatorConstants.ErrorMessages.AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE},
+                {HyprAuthenticatorConstants.ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_HASH_ALGORITHM_FAILURE},
+        };
+    }
+    @Test(dataProvider = "HYPRAuthnFailedExceptionMessageProviders", description = "Test case for process() method " +
+            "which handles the HYPRAuthnFailedExceptions thrown from HYPRAuthorizationAPIClient upon a valid " +
+            "login request(i.e. a valid username)", expectedExceptions = AuthenticationFailedException.class)
+    public void testProcessWithValidUsernameAndHyprAuthnFailedException(
+            HyprAuthenticatorConstants.ErrorMessages errorMessage)
+            throws AuthenticationFailedException, LogoutFailedException {
+
+        doReturn(true).when(mockedHyprAuthenticator).canHandle(httpServletRequest);
+        when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.SESSION_DATA_KEY))
+                .thenReturn(sessionDataKey);
+        when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.USERNAME)).thenReturn(username);
+
+        Map<String, String[]> parameterMap = new HashMap<>();
+        parameterMap.put(HyprAuthenticatorConstants.HYPR.USERNAME, new String[]{username});
+        when(httpServletRequest.getParameterMap()).thenReturn(parameterMap);
+
+        mockAuthenticatorContext();
+
+        mockedHyprAuthorizationAPIClient
+                .when(() -> HYPRAuthorizationAPIClient.getRegisteredDevicesRequest(baseUrl, appID, apiToken, username))
+                .thenThrow(new HYPRAuthnFailedException(
+                        errorMessage.getCode(), errorMessage.getMessage()));
+
+        spy.process(httpServletRequest, httpServletResponse, context);
+
+    }
+
+    @DataProvider(name = "HYPRConfigurationProviders")
+    public Object[][] getHyprConfigurationProviders() {
+
+        return new String[][]{
+                {baseUrl, appID, null},
+                {null, appID, apiToken},
+                {baseUrl, null, apiToken},
+                {baseUrl, null, null},
+                {null, appID, null},
+                {null, null, apiToken},
+        };
+    }
+    @Test( dataProvider = "HYPRConfigurationProviders", description = "Test case for process() method which handles " +
+            "invalid hypr configurations upon a valid login request(i.e. a valid username)",
+            expectedExceptions = AuthenticationFailedException.class)
+    public void testProcessWithValidUsernameAndInvalidHyprConfigurations(
+            String baseUrl, String appID, String apiToken) throws AuthenticationFailedException, LogoutFailedException {
+
+        doReturn(true).when(mockedHyprAuthenticator).canHandle(httpServletRequest);
+        when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.SESSION_DATA_KEY))
+                .thenReturn(sessionDataKey);
+        when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.USERNAME)).thenReturn(username);
+
+        Map<String, String[]> parameterMap = new HashMap<>();
+        parameterMap.put(HyprAuthenticatorConstants.HYPR.USERNAME, new String[]{username});
+        when(httpServletRequest.getParameterMap()).thenReturn(parameterMap);
+
+        Map<String, String> authenticatorProperties = new HashMap<>();
+        authenticatorProperties.put(HyprAuthenticatorConstants.HYPR.BASE_URL, baseUrl);
+        authenticatorProperties.put(HyprAuthenticatorConstants.HYPR.APP_ID, appID);
+        authenticatorProperties.put(HyprAuthenticatorConstants.HYPR.HYPR_API_TOKEN, apiToken);
+
+        when(context.getAuthenticatorProperties()).thenReturn(authenticatorProperties);
+        spy.process(httpServletRequest, httpServletResponse, context);
     }
 
     private void mockAuthenticatorContext() {
