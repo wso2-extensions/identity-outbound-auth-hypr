@@ -22,7 +22,7 @@ Note: Get the support from HYPR to configure a HYPR Application via the HYPR Con
 
 **Step 1:** Extract the project artifacts
 - Clone the `identity-outbound-auth-hypr` repository.
-- Build the project by running mvn clean install the root directory.
+- Build the project by running ```mvn clean install``` in the root directory.
 
 Note : The latest project artifacts can also be downloaded from the Connector Store.
 
@@ -34,65 +34,36 @@ Note : The latest project artifacts can also be downloaded from the Connector St
 - Navigate to `<IS_HOME>/repository/components/dropins`.
 - Paste the `.jar` file into the dropins directory.
 - Alternatively it's possible to drag and drop the `.jar` file to the dropins directory.
-- Similarly navigate to `identity-outbound-auth-hypr/components` → 
+- Next navigate to `identity-outbound-auth-hypr/components` → 
 `org.wso2.carbon.identity.application.authenticator.hypr.common` → `target`.
 - Copy the `org.wso2.carbon.identity.application.authenticator.hypr.common-1.0.0-SNAPSHOT.jar` file.
-- Navigate to `<IS_HOME>/repository/components/dropins`.
-- Paste the `.jar` file into the dropins directory.
+- Navigate to `<IS_HOME>/repository/components/lib` directory and paste the `.jar` file.
 
 **Step 3:** Deploying the HYPR REST API
 - Navigate to `identity-outbound-auth-hypr/components` → `org.wso2.carbon.identity.application.authenticator.hypr.rest` 
-- -> `org.wso2.carbon.identity.application.authenticator.hypr.rest.common`→ `target`.
-- Copy the `org.wso2.carbon.identity.application.authenticator.hypr.rest.common-1.0.0-SNAPSHOT.jar` file.
-- Navigate to `<IS_HOME>/repository/deployment/server/webapps/api/WEB-INF/lib`.
-- Paste the `.jar` file into the lib directory.
-- Similarly, repeat the above steps for the components;
-    - `org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher`
-    - `org.wso2.carbon.identity.application.authenticator.hypr.rest.v1`
+- →`org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher`→ `target`.
+- Copy the `api#hypr.war` file.
+- Navigate to `<IS_HOME>/repository/deployment/server/webapps`.
+- Paste the `.war` file into the webapps directory.
+- Next navigate to `<IS_HOME>/repository/conf`.
+- Open `deployment.toml` file.
+- Add the following lines of codes.
+```toml
+[[resource.access_control]]
+context = "(.*)/api/hypr/v1/authentication/status/(.*)"
+secure = "false"
+http_method = "GET"
+
+[tenant_context]
+enable_tenant_qualified_urls = "true"
+enable_tenanted_sessions = "true"
+rewrite.custom_webapps=["/api/hypr/"]
+```
 
 **Step 4:** Deploying HYPR login Page
 - Copy `hyprlogin.jsp` in the downloaded artifacts.
 - Navigate to `<IS_HOME>/repository/deployment/server/webapps` → `authenticationendpoint`.
 - Paste or drop the `JSP` file in the `authenticationendpoint` directory.
-
-**Step 5:** Updating the core files in WSO2 Identity Server
-- Navigate to `<IS_HOME>/repository/deployment/server/webapps/api/WEB-INF`.
-- Open `bean.xml`.
-- Add the following lines of codes.
-
-```xml
-<import resource="classpath:META-INF/cxf/hypr-server-v1-cxf.xml"/>
-```
-```xml
-<jaxrs:server id="hyprServer" address="/hypr/v1">
-  <jaxrs:serviceBeans>
-    <bean class="org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.AuthenticationApi"/>
-  </jaxrs:serviceBeans>
-  <jaxrs:providers>
-    <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider">
-      <constructor-arg>
-        <bean class="com.fasterxml.jackson.databind.ObjectMapper">
-          <property name="serializationInclusion" value="NON_NULL"/>
-        </bean>
-      </constructor-arg>
-    </bean>
-    <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
-    <bean class="org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.JsonProcessingExceptionMapper"/>
-    <bean class="org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.APIErrorExceptionMapper"/>
-    <bean class="org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.InputValidationExceptionMapper"/>
-    <bean class="org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.DefaultExceptionMapper"/>
-  </jaxrs:providers>
-</jaxrs:server>
-```
-
-- Navigate to `<IS_HOME>/repository/resources/conf/templates/repository/conf/identity`.
-- Open `identity.xml.j2`.
-- Scroll down to the “ResourceAccessControl” section.
-- Add the following lines for setting access control for hypr rest api inside the “<ResourceAccessControl>” config.
-
-```xml
-  <Resource context="(.*)/api/hypr/v1/authentication/(.*)" secured="false" http-method="GET"/>
-```
 
 
 ### _The WSO2 Console’s UI for HYPR authenticator section as follows_
