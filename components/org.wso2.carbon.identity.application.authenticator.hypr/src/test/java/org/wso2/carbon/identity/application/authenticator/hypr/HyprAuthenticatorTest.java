@@ -364,8 +364,7 @@ public class HyprAuthenticatorTest {
 
         mockedHyprAuthorizationAPIClient
                 .when(() -> HYPRAuthorizationAPIClient.getRegisteredDevicesRequest(baseUrl, appID, apiToken, username))
-                .thenThrow(new HYPRAuthnFailedException(
-                        errorMessage.getCode(), errorMessage.getMessage()));
+                .thenThrow(new HYPRAuthnFailedException(errorMessage.getCode(), errorMessage.getMessage()));
 
         mockServiceURLBuilder();
 
@@ -403,8 +402,7 @@ public class HyprAuthenticatorTest {
 
         mockedHyprAuthorizationAPIClient
                 .when(() -> HYPRAuthorizationAPIClient.getRegisteredDevicesRequest(baseUrl, appID, apiToken, username))
-                .thenThrow(new HYPRAuthnFailedException(
-                        errorMessage.getCode(), errorMessage.getMessage()));
+                .thenThrow(new HYPRAuthnFailedException(errorMessage.getCode(), errorMessage.getMessage()));
 
         spy.process(httpServletRequest, httpServletResponse, context);
 
