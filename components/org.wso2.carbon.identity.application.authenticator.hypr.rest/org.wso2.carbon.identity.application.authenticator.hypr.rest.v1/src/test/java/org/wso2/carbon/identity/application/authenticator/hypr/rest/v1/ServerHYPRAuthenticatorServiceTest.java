@@ -31,6 +31,7 @@ import org.testng.annotations.Test;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
+import org.wso2.carbon.identity.application.authenticator.hypr.common.exception.HYPRAuthnFailedException;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.model.State;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.model.StateResponse;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.web.HYPRAuthorizationAPIClient;
@@ -251,5 +252,54 @@ public class ServerHYPRAuthenticatorServiceTest {
         }
         Assert.assertEquals(statusResponse.getSessionKey(), sessionDataKey);
         Assert.assertEquals(statusResponse.getStatus(), currentAuthenticationState);
+    }
+
+    @Test(description = "Test case for handling invalid or expired HYPR API token extracted from the " +
+            "HYPR configurations.")
+    public void testHandleInvalidAPIToken () {
+
+        mockAuthenticationContext(context);
+        when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_STATUS)).thenReturn("PENDING");
+        when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_REQUEST_ID)).thenReturn(requestId);
+        when(FrameworkUtils.getAuthenticationContextFromCache(sessionDataKey)).thenReturn(context);
+
+        HyprAuthenticatorConstants.ErrorMessages errorMessage =
+                HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE;
+
+
+        mockedHyprAuthorizationAPIClient
+                .when(() -> HYPRAuthorizationAPIClient.getAuthenticationStatus(baseUrl, apiToken, requestId))
+                .thenThrow(new HYPRAuthnFailedException(errorMessage.getCode(), errorMessage.getMessage()));
+
+        try {
+            serverHYPRAuthenticatorService.getAuthenticationStatus(sessionDataKey);
+        } catch (APIError e) {
+            Assert.assertEquals(e.getCode(), HyprAuthenticatorConstants
+                    .ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode());
+        }
+    }
+
+    @Test(description = "Test case for handling invalid authentication properties (i.e : requestId).")
+    public void testHandleInvalidAuthenticationProperties () {
+
+        mockAuthenticationContext(context);
+        when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_STATUS)).thenReturn("PENDING");
+        when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_REQUEST_ID)).thenReturn(requestId);
+        when(FrameworkUtils.getAuthenticationContextFromCache(sessionDataKey)).thenReturn(context);
+
+        HyprAuthenticatorConstants.ErrorMessages errorMessage =
+                HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES;
+
+
+        mockedHyprAuthorizationAPIClient
+                .when(() -> HYPRAuthorizationAPIClient.getAuthenticationStatus(baseUrl, apiToken, requestId))
+                .thenThrow(new HYPRAuthnFailedException(errorMessage.getCode(), errorMessage.getMessage()));
+
+        try {
+            serverHYPRAuthenticatorService.getAuthenticationStatus(sessionDataKey);
+        } catch (APIError e) {
+            Assert.assertEquals(e.getCode(), HyprAuthenticatorConstants
+                    .ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES.getCode());
+        }
     }
 }
