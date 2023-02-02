@@ -115,14 +115,6 @@
         <jsp:include page="includes/footer.jsp"/>
     <% } %>
 
-     <%
-        String toEncode = EndpointConfigManager.getAppName() + ":" + String.valueOf(EndpointConfigManager.getAppPassword());
-        byte[] encoding = Base64.encodeBase64(toEncode.getBytes());
-        String authHeader = new String(encoding, Charset.defaultCharset());
-        String header = "Client " + authHeader;
-        System.out.println(header);
-    %>
-
     <script type="text/javascript">
 
         var i = 0;
@@ -190,9 +182,6 @@
                 } else {
                     $.ajax("/t/"+ tenantDomain + authStatusCheckApiWithQueryParams + sessionDataKey, {
                     method: GET,
-                    headers: {
-                        "Authorization": "<%=header%>"
-                    },
                     success: function (res) {
                         handleStatusResponse(res);
                     },
