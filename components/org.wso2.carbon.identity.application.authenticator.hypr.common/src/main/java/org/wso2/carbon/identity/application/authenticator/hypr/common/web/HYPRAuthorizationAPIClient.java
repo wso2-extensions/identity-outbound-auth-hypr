@@ -180,7 +180,7 @@ public class HYPRAuthorizationAPIClient {
 
             } else if (response.getStatusLine().getStatusCode() == 401) {
                 throw getHyprAuthnFailedException(
-                        HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_INVALID_API_TOKEN);
+                        HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE);
             }
 
         } catch (IOException e) {

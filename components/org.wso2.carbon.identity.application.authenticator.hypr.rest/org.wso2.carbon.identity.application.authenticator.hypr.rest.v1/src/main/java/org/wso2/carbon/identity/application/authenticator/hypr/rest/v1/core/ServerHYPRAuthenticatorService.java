@@ -97,10 +97,10 @@ public class ServerHYPRAuthenticatorService {
                 throw handleInvalidInput(HyprAuthenticatorConstants
                         .ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES);
             } else if (e.getErrorCode() == HyprAuthenticatorConstants
-                    .ErrorMessages.SERVER_ERROR_INVALID_API_TOKEN.getCode()) {
+                    .ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode()) {
                 // Handle invalid or expired api token.
                 throw handleError(Response.Status.INTERNAL_SERVER_ERROR,
-                        HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_INVALID_API_TOKEN);
+                        HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE);
             }
         }
 
