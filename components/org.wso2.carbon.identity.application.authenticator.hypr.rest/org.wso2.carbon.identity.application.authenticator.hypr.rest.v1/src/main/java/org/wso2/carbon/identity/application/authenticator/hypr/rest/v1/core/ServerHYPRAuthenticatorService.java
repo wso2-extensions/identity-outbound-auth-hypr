@@ -91,13 +91,13 @@ public class ServerHYPRAuthenticatorService {
             return statusResponse;
 
         } catch (HYPRAuthnFailedException e) {
-            if (e.getErrorCode() == HyprAuthenticatorConstants
-                    .ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES.getCode()) {
+            if (HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES.getCode()
+                    .equals(e.getErrorCode())) {
                 // Handle invalid request id.
                 throw handleInvalidInput(HyprAuthenticatorConstants
                         .ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES);
-            } else if (e.getErrorCode() == HyprAuthenticatorConstants
-                    .ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode()) {
+            } else if (HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode()
+                    .equals(e.getErrorCode())) {
                 // Handle invalid or expired api token.
                 throw handleError(Response.Status.INTERNAL_SERVER_ERROR,
                         HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE);
