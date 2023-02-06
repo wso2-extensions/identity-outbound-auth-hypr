@@ -67,26 +67,18 @@ public class HyprAuthenticatorTest {
     private static final String modelNumber = "testModelNumber";
     private static final String machineId = "testMachineID";
     private static final String username = "testUser";
-
-
     private HyprAuthenticator hyprAuthenticator;
-
     @Mock
     private HyprAuthenticator mockedHyprAuthenticator;
     @Mock
     private HttpServletRequest httpServletRequest;
-
     @Mock
     private HttpServletResponse httpServletResponse;
-
     @Spy
     private AuthenticationContext context;
-
     @Spy
     private HyprAuthenticator spy;
-
     private MockedStatic<HYPRAuthorizationAPIClient> mockedHyprAuthorizationAPIClient;
-
     private AutoCloseable autoCloseable;
     private MockedStatic<ServiceURLBuilder> mockedServiceURLBuilder;
 
@@ -101,6 +93,7 @@ public class HyprAuthenticatorTest {
 
     @AfterClass
     public void close() throws Exception {
+
         mockedHyprAuthorizationAPIClient.close();
         mockedServiceURLBuilder.close();
         autoCloseable.close();
@@ -193,7 +186,6 @@ public class HyprAuthenticatorTest {
         doReturn(true).when(mockedHyprAuthenticator).canHandle(httpServletRequest);
         when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.SESSION_DATA_KEY))
                 .thenReturn(sessionDataKey);
-        doReturn(true).when(mockedHyprAuthenticator).canHandle(httpServletRequest);
         when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.USERNAME)).thenReturn(null);
         when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.AUTH_STATUS)).thenReturn(null);
         doNothing().when(spy).initiateAuthenticationRequest(httpServletRequest, httpServletResponse, context);
