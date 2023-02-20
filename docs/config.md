@@ -18,7 +18,7 @@ To use the connector, you'll need:
 
 Note: Get the support from HYPR to configure a HYPR Application via the HYPR Control Center.
 
-## Setup and Installing HYPR Connector
+## Setting up and installing the HYPR connector
 
 **Step 1:** Extract the project artifacts
 - Clone the `identity-outbound-auth-hypr` repository.
