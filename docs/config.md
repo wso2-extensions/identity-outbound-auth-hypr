@@ -82,7 +82,7 @@ Example :
 ```
 <Application ID of the HYPR App>
 ```
-Follow the following steps to extract the App ID From the HYPR Control Center.
+Follow the steps given below to extract the App ID From the HYPR Control Center.
 - Navigate to the HYPR Control Central via the link provided to you from HYPR and log in using your HYPR credentials.
 - Select your app from the `Choose an App` drop-down list. Next you are navigated to the Dashboard of the application. 
 - Finally, click the App Settings in the top right corner. Note down the App ID.
