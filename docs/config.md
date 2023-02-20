@@ -20,7 +20,7 @@ Note: Get the support from HYPR to configure a HYPR Application via the HYPR Con
 
 ## Setting up and installing the HYPR connector
 
-**Step 1:** Extract the project artifacts
+**Step 1:** Extracting the project artifacts
 - Clone the `identity-outbound-auth-hypr` repository.
 - Build the project by running ```mvn clean install``` in the root directory.
 
