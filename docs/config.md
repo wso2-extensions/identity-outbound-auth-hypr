@@ -60,7 +60,7 @@ enable_tenanted_sessions = "true"
 rewrite.custom_webapps=["/api/hypr/"]
 ```
 
-**Step 4:** Deploying HYPR login Page
+**Step 4:** Deploying HYPR login page
 - Copy `hyprlogin.jsp` in the downloaded artifacts.
 - Navigate to `<IS_HOME>/repository/deployment/server/webapps` → `authenticationendpoint`.
 - Paste or drop the `JSP` file in the `authenticationendpoint` directory.
