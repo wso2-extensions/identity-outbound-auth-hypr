@@ -3,7 +3,7 @@ To use the HYPR authenticator with WSO2 Identity Server, first you need to confi
 WSO2 Identity Server. See the instructions given below on how to configure the HYPR authenticator with
 WSO2 Identity Server using a sample app.
 
-In order to test the approach, First an end user account should be registered in the Application created via the 
+To test the approach, first an end-user account should be registered in the application created via the 
 HYPR Control Center and the end user should have the HYPR mobile application installed in the smartphone, as well as 
 the smartphone registered with the end user account.
 
