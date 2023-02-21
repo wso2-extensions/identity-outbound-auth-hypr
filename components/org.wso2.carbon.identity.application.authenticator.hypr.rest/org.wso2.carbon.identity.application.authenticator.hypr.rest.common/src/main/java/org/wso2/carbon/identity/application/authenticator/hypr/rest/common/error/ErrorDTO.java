@@ -19,11 +19,11 @@
 package org.wso2.carbon.identity.application.authenticator.hypr.rest.common.error;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hazelcast.org.codehaus.commons.nullanalysis.NotNull;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
+import javax.validation.constraints.NotNull;
 
 /**
  * Common DTO class for all the API related error responses.

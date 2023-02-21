@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2022, WSO2 LLC. (http://www.wso2.com).
+  ~ Copyright (c) 2023, WSO2 LLC. (http://www.wso2.com).
   ~
   ~ WSO2 LLC. licenses this file to you under the Apache License,
   ~ Version 2.0 (the "License"); you may not use this file except
@@ -41,40 +41,37 @@
         <dependency>
             <groupId>org.wso2.carbon.identity.framework</groupId>
             <artifactId>org.wso2.carbon.identity.core</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity.framework</groupId>
             <artifactId>org.wso2.carbon.identity.application.authentication.framework</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity.framework</groupId>
             <artifactId>org.wso2.carbon.identity.application.common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents.wso2</groupId>
-            <artifactId>httpcore</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
+            <groupId>org.wso2.carbon.identity.framework</groupId>
+            <artifactId>org.wso2.carbon.identity.central.log.mgt</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.wso2.carbon.identity.outbound.auth.hypr</groupId>
             <artifactId>org.wso2.carbon.identity.application.authenticator.hypr.common</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <!--Test dependencies-->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <scope>test</scope>
         </dependency>
         <!--Test dependencies-->
         <dependency>
@@ -109,8 +106,12 @@
                         </Private-Package>
                         <Import-Package>
 
-                            com.fasterxml.jackson.databind; version="${jackson-core.version}",
-                            com.fasterxml.jackson.databind.node; version="${jackson-core.version}",
+                            com.google.gson; version="${gson.version}",
+                            com.google.gson.reflect; version="${gson.version}",
+                            org.apache.http.client.config; version="${httpcomponents-httpclient.imp.pkg.version.range}",
+                            org.apache.http.conn; version="${httpcomponents-httpclient.imp.pkg.version.range}",
+                            org.apache.http.impl.conn; version="${httpcomponents-httpclient.imp.pkg.version.range}",
+                            org.wso2.carbon.identity.central.log.mgt.utils; version="${identity.framework.package.import.version.range}",
                             javax.servlet.http; version="${imp.pkg.version.javax.servlet}",
                             org.apache.commons.lang;version="${org.apache.commons.lang.version.range}",
                             org.apache.commons.logging; version="${commons-logging.osgi.version.range}",
@@ -140,7 +141,6 @@
                             !org.wso2.carbon.identity.application.authenticator.hypr.internal,
                             org.wso2.carbon.identity.application.authenticator.hypr.*; version="${project.version}"
                         </Export-Package>
-                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>
