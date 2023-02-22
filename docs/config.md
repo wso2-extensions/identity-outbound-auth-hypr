@@ -102,7 +102,12 @@ Follow the steps given below to generate a new API token from the HYPR Control C
 1. Navigate to the HYPR Control Central via the link provided to you from HYPR and log in using your HYPR credentials.
 2. Select your app from the `Choose an App` drop-down list. Next you are navigated to the Dashboard of the application.
 3. Under **Advanced Config**, click **Access Token** > **Generate Token**.
-4. Finally, add a new name to your API token,  select **API Access Token** from the available list, and click **Create Token**.
+4. Finally, add a new name to your API token,  select **API Access Token** from the available list, and click 
+**Create Token**.
 
 ### The HYPR authentication flow
+
+The authentication flow for a user attempting to log in to a sample app, "PickUp Dispatch" using HYPR is illustrated 
+in the diagram below.
+
 ![HYPR Authentication Demo Flow](images/HYPRAuthenticatorDemoFlow.png)
