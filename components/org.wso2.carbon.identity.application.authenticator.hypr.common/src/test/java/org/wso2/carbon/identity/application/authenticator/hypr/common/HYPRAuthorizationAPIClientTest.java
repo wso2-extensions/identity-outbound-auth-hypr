@@ -31,6 +31,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.exception.HYPRAuthnFailedException;
@@ -54,6 +55,10 @@ import java.util.List;
 
 import static org.mockito.Mockito.mockStatic;
 
+/**
+ * The HYPRAuthorizationAPIClientTest class contains all the test cases corresponding to the HYPRAuthorizationAPIClient
+ * class.
+ */
 public class HYPRAuthorizationAPIClientTest {
 
     private static final String apiToken = "testApiToken";
@@ -65,27 +70,31 @@ public class HYPRAuthorizationAPIClientTest {
     private static final String protocolVersion = null;
     private static final String modelNumber = "testModelNumber";
     private static final String requestId = "testRequestId";
-    private static final String deviceInfoURL = String.format("%s%s%s/%s/devices", baseUrl,
-    HyprAuthenticatorConstants.HYPR.HYPR_USER_DEVICE_INFO_PATH, appID, username);
-    private static final String initiateAuthenticationURL = String.format("%s%s", baseUrl,
-            HyprAuthenticatorConstants.HYPR.HYPR_AUTH_PATH);
-    String authenticationStatusPollURL = String.format("%s%s%s", baseUrl,
-            HyprAuthenticatorConstants.HYPR.HYPR_AUTH_STATUS_CHECK_PATH, requestId);
+    private static final String statusCompleted = "COMPLETED";
+    private static final String statusRequestSent = "REQUEST_SENT";
+    private static final String deviceInfoURL =
+            baseUrl + HyprAuthenticatorConstants.HYPR.HYPR_USER_DEVICE_INFO_PATH + appID + "/" + username + "/devices";
+    private static final String initiateAuthenticationURL = baseUrl + HyprAuthenticatorConstants.HYPR.HYPR_AUTH_PATH;
+    String authenticationStatusPollURL =
+            baseUrl + HyprAuthenticatorConstants.HYPR.HYPR_AUTH_STATUS_CHECK_PATH + requestId;
     private MockedStatic<HYPRWebUtils> mockedHyprWebUtils;
     private Gson gson;
 
     @BeforeClass
     public void setUp() {
+
         gson = new Gson();
     }
 
     @BeforeMethod
     public void methodSetUp() {
+
         mockedHyprWebUtils = mockStatic(HYPRWebUtils.class);
     }
 
     @AfterMethod
     public void methodClose() {
+
         mockedHyprWebUtils.close();
     }
 
@@ -118,78 +127,84 @@ public class HYPRAuthorizationAPIClientTest {
 
     }
 
-    @Test(description = "Test case for getRegisteredDevicesRequest() method for an invalid HYPR API token provided.")
-    public void testGetRegisteredDevicesRequestWithInvalidApiToken() {
+    @DataProvider(name = "getRegisteredDevicesRequestApiErrorResponseProviders")
+    public Object[][] getRegisteredDevicesRequestApiErrorResponseProviders() {
+
+        return new Object[][]{
+                {HttpStatus.SC_UNAUTHORIZED, HyprAuthenticatorConstants
+                        .ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE},
+                {HttpStatus.SC_INTERNAL_SERVER_ERROR, HyprAuthenticatorConstants
+                        .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE}
+        };
+    }
+
+    @Test(dataProvider = "getRegisteredDevicesRequestApiErrorResponseProviders", description = "Test " +
+            "getRegisteredDevicesRequest() method for error response handling.")
+    public void testGetRegisteredDevicesRequestWithInvalidParameters(
+            int httpStatusCode, HyprAuthenticatorConstants.ErrorMessages errorMessage) {
 
         HttpResponse response = new BasicHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1,
-                HttpStatus.SC_UNAUTHORIZED, null));
+                httpStatusCode, null));
         mockedHyprWebUtils.when(() -> HYPRWebUtils.httpGet(apiToken, deviceInfoURL)).thenReturn(response);
 
         try {
             HYPRAuthorizationAPIClient.getRegisteredDevicesRequest(baseUrl, appID, apiToken, username);
+            // If the flow worked without throwing any errors the test case should fail.
+            Assert.fail();
         } catch (HYPRAuthnFailedException e) {
-            Assert.assertEquals(e.getErrorCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode());
+            Assert.assertEquals(e.getErrorCode(), errorMessage.getCode());
         }
     }
 
-    @Test(description = "Test case for getRegisteredDevicesRequest() method where an error occurred while retrieving" +
-            " the registered devices.")
-    public void testGetRegisteredDevicesRequestWithGeneralErrors() {
+    @DataProvider(name = "getRegisteredDevicesRequestExceptionProviders")
+    public Object[][] getRegisteredDevicesRequestExceptionProviders() {
 
-        // Handling error responses retrieved via call HYPR APIs.
-        HttpResponse response = new BasicHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1,
-                HttpStatus.SC_NOT_FOUND, null));
-        mockedHyprWebUtils.when(() -> HYPRWebUtils.httpGet(apiToken, deviceInfoURL)).thenReturn(response);
-
-        try {
-            HYPRAuthorizationAPIClient.getRegisteredDevicesRequest(baseUrl, appID, apiToken, username);
-        } catch (HYPRAuthnFailedException e) {
-            Assert.assertEquals(e.getErrorCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE.getCode());
-        }
-
-        // Handling IOException thrown when making HTTP calls.
-        mockedHyprWebUtils.when(() -> HYPRWebUtils.httpGet(apiToken, deviceInfoURL)).thenThrow(IOException.class);
-        try {
-            HYPRAuthorizationAPIClient.getRegisteredDevicesRequest(baseUrl, appID, apiToken, username);
-        } catch (HYPRAuthnFailedException e) {
-            Assert.assertEquals(e.getErrorCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE.getCode());
-        }
-
+        return new Object[][]{
+                {IOException.class, HyprAuthenticatorConstants.ErrorMessages.
+                        AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE},
+                {HYPRClientException.class, HyprAuthenticatorConstants
+                        .ErrorMessages.SERVER_ERROR_CREATING_HTTP_CLIENT}
+        };
     }
 
-    @Test(description = "Test case for getRegisteredDevicesRequest() method where the HTTPClientManager failed to " +
-            "pass a valid HTTPClient instance.")
-    public void testGetRegisteredDevicesRequestWithHttpClientRetrievingFailure() {
+    @Test(dataProvider = "getRegisteredDevicesRequestExceptionProviders", description = "Test " +
+            "getRegisteredDevicesRequest() method for exception handling")
+    public void testGetRegisteredDevicesRequestWithExceptions(Class<Exception> exceptionClass,
+                                                              HyprAuthenticatorConstants.ErrorMessages errorMessage) {
 
         mockedHyprWebUtils.when(() -> HYPRWebUtils.httpGet(apiToken, deviceInfoURL))
-                .thenThrow(HYPRClientException.class);
+                .thenThrow(exceptionClass);
 
         try {
             HYPRAuthorizationAPIClient.getRegisteredDevicesRequest(baseUrl, appID, apiToken, username);
+            // If the flow worked without throwing any errors the test case should fail.
+            Assert.fail();
         } catch (HYPRAuthnFailedException e) {
-            Assert.assertEquals(e.getErrorCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.SERVER_ERROR_CREATING_HTTP_CLIENT.getCode());
+            Assert.assertEquals(e.getErrorCode(), errorMessage.getCode());
         }
+    }
+
+    public String getDeviceAuthenticationRequestJson (String username, String machineId, String appID)
+            throws NoSuchAlgorithmException {
+
+        DeviceAuthenticationRequest deviceAuthenticationRequest =
+                new DeviceAuthenticationRequest(username, machineId, appID);
+
+        Gson gson = new GsonBuilder().create();
+        return gson.toJson(deviceAuthenticationRequest);
     }
 
     @Test(description = "Test case for initiateAuthenticationRequest() method for a valid username and machineId.")
     public void testInitiateAuthenticationRequestWithValidParameters() throws NoSuchAlgorithmException,
             HYPRAuthnFailedException, UnsupportedEncodingException {
 
-        DeviceAuthenticationRequest deviceAuthenticationRequest =
-                new DeviceAuthenticationRequest(username, machineId, appID);
-
-        Gson gson = new GsonBuilder().create();
-        String jsonRequestBody = gson.toJson(deviceAuthenticationRequest);
+        String jsonRequestBody = getDeviceAuthenticationRequestJson(username, machineId, appID);
 
         ResponseEntity authenticationRequestResponseEntity = new ResponseEntity();
-        authenticationRequestResponseEntity.setResponseCode(200);
+        authenticationRequestResponseEntity.setResponseCode(HttpStatus.SC_OK);
 
         RequestIDResponse requestIDResponse = new RequestIDResponse();
-        requestIDResponse.setRequestId("testRequestId");
+        requestIDResponse.setRequestId(requestId);
 
         DeviceAuthenticationResponse expectedDeviceAuthenticationResponse = new DeviceAuthenticationResponse();
         expectedDeviceAuthenticationResponse.setStatus(authenticationRequestResponseEntity);
@@ -210,48 +225,37 @@ public class HYPRAuthorizationAPIClientTest {
                 (retrievedDeviceAuthenticationResponse.getResponse().getRequestId()));
     }
 
-    @Test(description = "Test case for initiateAuthenticationRequest() method for an invalid HYPR API token provided.")
-    public void testInitiateAuthenticationRequestWithInvalidApiToken() throws NoSuchAlgorithmException {
+    @DataProvider(name = "getInitiateAuthenticationRequestApiErrorResponseProviders")
+    public Object[][] getInitiateAuthenticationRequestApiErrorResponseProviders() {
 
-        DeviceAuthenticationRequest deviceAuthenticationRequest =
-                new DeviceAuthenticationRequest(username, machineId, appID);
-
-        Gson gson = new GsonBuilder().create();
-        String jsonRequestBody = gson.toJson(deviceAuthenticationRequest);
-
-        HttpResponse response = new BasicHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1,
-                HttpStatus.SC_UNAUTHORIZED, null));
-        mockedHyprWebUtils.when(() -> HYPRWebUtils.httpPost(apiToken, initiateAuthenticationURL, jsonRequestBody))
-                .thenReturn(response);
-
-        try {
-            HYPRAuthorizationAPIClient.initiateAuthenticationRequest(baseUrl, appID, apiToken, username, machineId);
-        } catch (HYPRAuthnFailedException e) {
-            Assert.assertEquals(e.getErrorCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode());
-        }
+        return new Object[][]{
+                {HttpStatus.SC_BAD_REQUEST, HyprAuthenticatorConstants
+                        .ErrorMessages.AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_INVALID_USER},
+                {HttpStatus.SC_UNAUTHORIZED, HyprAuthenticatorConstants
+                        .ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE},
+                {HttpStatus.SC_INTERNAL_SERVER_ERROR, HyprAuthenticatorConstants
+                        .ErrorMessages.AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE}
+        };
     }
 
-    @Test(description = "Test case for initiateAuthenticationRequest() method for either an invalid username or " +
-            "machineId.")
-    public void testInitiateAuthenticationRequestWithInvalidParameters() throws NoSuchAlgorithmException {
+    @Test(dataProvider = "getInitiateAuthenticationRequestApiErrorResponseProviders", description = "Test case for " +
+            "initiateAuthenticationRequest() method for either an invalid username or machineId or HYPR API token.")
+    public void testInitiateAuthenticationRequestWithInvalidParameters(
+            int httpStatusCode, HyprAuthenticatorConstants.ErrorMessages errorMessage) throws NoSuchAlgorithmException {
 
-        DeviceAuthenticationRequest deviceAuthenticationRequest =
-                new DeviceAuthenticationRequest(username, machineId, appID);
+        String jsonRequestBody = getDeviceAuthenticationRequestJson(username, machineId, appID);
 
-        Gson gson = new GsonBuilder().create();
-        String jsonRequestBody = gson.toJson(deviceAuthenticationRequest);
-
-        HttpResponse response = new BasicHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1,
-                HttpStatus.SC_BAD_REQUEST, null));
+        HttpResponse response = new BasicHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, httpStatusCode,
+                null));
         mockedHyprWebUtils.when(() -> HYPRWebUtils.httpPost(apiToken, initiateAuthenticationURL, jsonRequestBody))
                 .thenReturn(response);
 
         try {
             HYPRAuthorizationAPIClient.initiateAuthenticationRequest(baseUrl, appID, apiToken, username, machineId);
+            // If the flow worked without throwing any errors the test case should fail.
+            Assert.fail();
         } catch (HYPRAuthnFailedException e) {
-            Assert.assertEquals(e.getErrorCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE.getCode());
+            Assert.assertEquals(e.getErrorCode(), errorMessage.getCode());
         }
     }
 
@@ -263,30 +267,42 @@ public class HYPRAuthorizationAPIClientTest {
 
         try {
             HYPRAuthorizationAPIClient.initiateAuthenticationRequest(baseUrl, appID, apiToken, username, machineId);
+            // If the flow worked without throwing any errors the test case should fail.
+            Assert.fail();
         } catch (HYPRAuthnFailedException e) {
             Assert.assertEquals(e.getErrorCode(), HyprAuthenticatorConstants
                     .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_HASH_ALGORITHM_FAILURE.getCode());
         }
     }
 
-    @Test(description = "Test case for initiateAuthenticationRequest() method where the HTTPClientManager failed to " +
-            "pass a valid HTTPClient instance.")
-    public void testInitiateAuthenticationRequestWithHttpClientRetrievingFailure() throws NoSuchAlgorithmException {
+    @DataProvider(name = "getInitiateAuthenticationRequestExceptionProviders")
+    public Object[][] getInitiateAuthenticationRequestExceptionProviders() {
 
-        DeviceAuthenticationRequest deviceAuthenticationRequest =
-                new DeviceAuthenticationRequest(username, machineId, appID);
+        return new Object[][]{
+                {IOException.class, HyprAuthenticatorConstants.ErrorMessages.
+                        AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE},
+                {HYPRClientException.class, HyprAuthenticatorConstants
+                        .ErrorMessages.SERVER_ERROR_CREATING_HTTP_CLIENT}
+        };
+    }
 
-        Gson gson = new GsonBuilder().create();
-        String jsonRequestBody = gson.toJson(deviceAuthenticationRequest);
+    @Test(dataProvider = "getInitiateAuthenticationRequestExceptionProviders", description = "Test " +
+            " initiateAuthenticationRequest() method for exception handling")
+    public void testInitiateAuthenticationRequestWithExceptions(Class<Exception> exceptionClass,
+                                                                HyprAuthenticatorConstants.ErrorMessages errorMessage)
+            throws NoSuchAlgorithmException {
+
+        String jsonRequestBody = getDeviceAuthenticationRequestJson(username, machineId, appID);
 
         mockedHyprWebUtils.when(() -> HYPRWebUtils.httpPost(apiToken, initiateAuthenticationURL, jsonRequestBody))
-                .thenThrow(HYPRClientException.class);
+                .thenThrow(exceptionClass);
 
         try {
             HYPRAuthorizationAPIClient.initiateAuthenticationRequest(baseUrl, appID, apiToken, username, machineId);
+            // If the flow worked without throwing any errors the test case should fail.
+            Assert.fail();
         } catch (HYPRAuthnFailedException e) {
-            Assert.assertEquals(e.getErrorCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.SERVER_ERROR_CREATING_HTTP_CLIENT.getCode());
+            Assert.assertEquals(e.getErrorCode(), errorMessage.getCode());
         }
     }
 
@@ -295,8 +311,8 @@ public class HYPRAuthorizationAPIClientTest {
             HYPRAuthnFailedException {
 
         List<State> states = new ArrayList<>();
-        states.add(new State("REQUEST_SENT", ""));
-        states.add(new State("COMPLETED", ""));
+        states.add(new State(statusRequestSent, ""));
+        states.add(new State(statusCompleted, ""));
 
         StateResponse expectedStateResponse = new StateResponse(requestId, username, states);
 
@@ -314,64 +330,64 @@ public class HYPRAuthorizationAPIClientTest {
         Assert.assertEquals(expectedStateResponse.getCurrentState(), (retrievedStateResponse.getCurrentState()));
     }
 
-    @Test(description = "Test case for getAuthenticationStatus() method for an invalid requestId.")
-    public void testGetAuthenticationStatusWithInvalidRequestId() {
+    @DataProvider(name = "getAuthenticationStatusApiErrorResponseProviders")
+    public Object[][] getAuthenticationStatusApiErrorResponseProviders() {
 
-        HttpResponse response = new BasicHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1,
-                HttpStatus.SC_BAD_REQUEST, null));
+        return new Object[][]{
+                {HttpStatus.SC_BAD_REQUEST, HyprAuthenticatorConstants
+                        .ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES},
+                {HttpStatus.SC_UNAUTHORIZED, HyprAuthenticatorConstants
+                        .ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE},
+                {HttpStatus.SC_INTERNAL_SERVER_ERROR, HyprAuthenticatorConstants
+                        .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE}
+        };
+    }
+
+    @Test(dataProvider = "getAuthenticationStatusApiErrorResponseProviders", description = "Test case for " +
+            "getAuthenticationStatus() method for invalid authentication properties such as requestId & HYPR " +
+            "API token.")
+    public void testGetAuthenticationStatusWithInvalidAuthProperties(
+            int httpStatusCode, HyprAuthenticatorConstants.ErrorMessages errorMessage) {
+
+        HttpResponse response = new BasicHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1, httpStatusCode,
+                null));
         mockedHyprWebUtils.when(() -> HYPRWebUtils.httpGet(apiToken, authenticationStatusPollURL)).thenReturn(response);
 
         try {
             HYPRAuthorizationAPIClient.getAuthenticationStatus(baseUrl, apiToken, requestId);
+            // If the flow worked without throwing any errors the test case should fail.
+            Assert.fail();
         } catch (HYPRAuthnFailedException e) {
-            Assert.assertEquals(e.getErrorCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES.getCode());
+            Assert.assertEquals(e.getErrorCode(), errorMessage.getCode());
         }
     }
 
-    @Test(description = "Test case for getAuthenticationStatus() method for an invalid HYPR API token provided.")
-    public void testGetAuthenticationStatusWithInvalidApiToken() {
+    @DataProvider(name = "getAuthenticationStatusExceptionProviders")
+    public Object[][] getAuthenticationStatusExceptionProviders() {
 
-        HttpResponse response = new BasicHttpResponse(new BasicStatusLine(HttpVersion.HTTP_1_1,
-                HttpStatus.SC_UNAUTHORIZED, null));
-        mockedHyprWebUtils.when(() -> HYPRWebUtils.httpGet(apiToken, authenticationStatusPollURL)).thenReturn(response);
-
-        try {
-            HYPRAuthorizationAPIClient.getAuthenticationStatus(baseUrl, apiToken, requestId);
-        } catch (HYPRAuthnFailedException e) {
-            Assert.assertEquals(e.getErrorCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode());
-        }
+        return new Object[][]{
+                {IOException.class, HyprAuthenticatorConstants.ErrorMessages.
+                        AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE},
+                {HYPRClientException.class, HyprAuthenticatorConstants
+                        .ErrorMessages.SERVER_ERROR_CREATING_HTTP_CLIENT}
+        };
     }
 
-    @Test(description = "Test case for getAuthenticationStatus() method where an error occurred while retrieving the " +
-            "authentication status.")
-    public void testGetAuthenticationStatusWithGeneralErrors() {
-
-        // Handling IOException thrown when making HTTP calls.
-        mockedHyprWebUtils.when(() -> HYPRWebUtils.httpGet(apiToken, authenticationStatusPollURL))
-                .thenThrow(IOException.class);
-        try {
-            HYPRAuthorizationAPIClient.getAuthenticationStatus(baseUrl, apiToken, requestId);
-        } catch (HYPRAuthnFailedException e) {
-            Assert.assertEquals(e.getErrorCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE.getCode());
-        }
-    }
-
-    @Test(description = "Test case for getAuthenticationStatus() method where the HTTPClientManager failed to " +
-            "pass a valid HTTPClient instance.")
-    public void testGetAuthenticationStatusWithHttpClientRetrievingFailure() {
+    @Test(dataProvider = "getAuthenticationStatusExceptionProviders", description = "Test case for " +
+            "getAuthenticationStatus() method exception handling")
+    public void testGetAuthenticationStatusWithExceptions(Class<Exception> exceptionClass,
+                                                          HyprAuthenticatorConstants.ErrorMessages errorMessage) {
 
         mockedHyprWebUtils.when(() -> HYPRWebUtils.httpGet(apiToken, authenticationStatusPollURL))
-                .thenThrow(HYPRClientException.class);
-
+                .thenThrow(exceptionClass);
         try {
             HYPRAuthorizationAPIClient.getAuthenticationStatus(baseUrl, apiToken, requestId);
+            // If the flow worked without throwing any errors the test case should fail.
+            Assert.fail();
         } catch (HYPRAuthnFailedException e) {
-            Assert.assertEquals(e.getErrorCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.SERVER_ERROR_CREATING_HTTP_CLIENT.getCode());
+            Assert.assertEquals(e.getErrorCode(), errorMessage.getCode());
         }
     }
+
 
 }

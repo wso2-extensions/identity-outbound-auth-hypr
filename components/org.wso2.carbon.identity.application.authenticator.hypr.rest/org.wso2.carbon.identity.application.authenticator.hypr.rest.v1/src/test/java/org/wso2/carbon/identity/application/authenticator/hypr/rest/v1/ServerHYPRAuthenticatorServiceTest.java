@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.identity.application.authenticator.hypr.rest.v1;
 
-import org.apache.commons.lang.StringUtils;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
@@ -47,6 +46,10 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
+/**
+ * The ServerHYPRAuthenticatorServiceTest class contains all the test cases corresponding to the
+ * ServerHYPRAuthenticatorService class.
+ */
 public class ServerHYPRAuthenticatorServiceTest {
 
     private static final String apiToken = "testApiToken";
@@ -54,10 +57,15 @@ public class ServerHYPRAuthenticatorServiceTest {
     private static final String sessionDataKey = "testSessionKey";
     private static final String requestId = "testRequestId";
     private static final String username = "testUser";
+    private static final String statusCompleted = "COMPLETED";
+    private static final String statusRequestSent = "REQUEST_SENT";
+    private static final String statusInitiated = "INITIATED";
+    private static final String statusInitiatedResponse = "INITIATED_RESPONSE";
+    private static final String statusFailed = "FAILED";
+    private static final String statusCanceled = "CANCELED";
+    private static final String statusPending = "PENDING";
     private static Map<String, String> hyprConfigurations;
-
     private ServerHYPRAuthenticatorService serverHYPRAuthenticatorService;
-
     private MockedStatic<HYPRAuthorizationAPIClient> mockedHyprAuthorizationAPIClient;
     private MockedStatic<FrameworkUtils> mockedFrameworkUtils;
     @Mock
@@ -65,6 +73,7 @@ public class ServerHYPRAuthenticatorServiceTest {
 
     @BeforeClass
     public void setUp() {
+
         serverHYPRAuthenticatorService = new ServerHYPRAuthenticatorService();
         mockedHyprAuthorizationAPIClient = mockStatic(HYPRAuthorizationAPIClient.class);
         mockedFrameworkUtils = mockStatic(FrameworkUtils.class);
@@ -76,11 +85,13 @@ public class ServerHYPRAuthenticatorServiceTest {
 
     @BeforeMethod
     public void methodSetUp() {
+
         MockitoAnnotations.openMocks(this);
     }
 
     @AfterClass
     public void close() {
+
         mockedHyprAuthorizationAPIClient.close();
         mockedFrameworkUtils.close();
     }
@@ -92,11 +103,12 @@ public class ServerHYPRAuthenticatorServiceTest {
 
         try {
             serverHYPRAuthenticatorService.getAuthenticationStatus(sessionDataKey);
+            // If the flow worked without throwing any errors the test case should fail.
+            Assert.fail();
         } catch (APIError e) {
             assertEquals(e.getCode(),
                     HyprAuthenticatorConstants.ErrorMessages.CLIENT_ERROR_INVALID_SESSION_KEY.getCode());
         }
-
     }
 
     @DataProvider(name = "hyprConfigurationProviders")
@@ -113,17 +125,15 @@ public class ServerHYPRAuthenticatorServiceTest {
             "configurations in the extracted authentication context for the provided session key.")
     public void testHandleInvalidHyprConfigurations(String baseUrl, String apiToken) {
 
-        if (StringUtils.isNotBlank(baseUrl)) {
-            when(context.getProperty(HyprAuthenticatorConstants.HYPR.BASE_URL)).thenReturn(baseUrl);
-        }
-        if (StringUtils.isNotBlank(apiToken)) {
-            when(context.getProperty(HyprAuthenticatorConstants.HYPR.HYPR_API_TOKEN)).thenReturn(apiToken);
-        }
 
+        when(context.getProperty(HyprAuthenticatorConstants.HYPR.BASE_URL)).thenReturn(baseUrl);
+        when(context.getProperty(HyprAuthenticatorConstants.HYPR.HYPR_API_TOKEN)).thenReturn(apiToken);
         when(FrameworkUtils.getAuthenticationContextFromCache(sessionDataKey)).thenReturn(context);
 
         try {
             serverHYPRAuthenticatorService.getAuthenticationStatus(sessionDataKey);
+            // If the flow worked without throwing errors the test case should fail.
+            Assert.fail();
         } catch (APIError e) {
             assertEquals(e.getCode(), HyprAuthenticatorConstants
                     .ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATOR_CONFIGURATIONS.getCode());
@@ -134,9 +144,9 @@ public class ServerHYPRAuthenticatorServiceTest {
     public Object[][] getHyprAuthenticationPropertiesProviders() {
 
         return new String[][]{
-                {"COMPLETED", null},
-                {"FAILED", null},
-                {"CANCELED", null},
+                {statusCompleted, null},
+                {statusFailed, null},
+                {statusCanceled, null},
                 {null, requestId},
                 {null, null}
         };
@@ -154,17 +164,14 @@ public class ServerHYPRAuthenticatorServiceTest {
 
         mockAuthenticationContext(context);
 
-        if (StringUtils.isNotBlank(authStatus)) {
-            when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_STATUS)).thenReturn(authStatus);
-        }
-        if (StringUtils.isNotBlank(requestId)) {
-            when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_REQUEST_ID)).thenReturn(requestId);
-        }
-
+        when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_STATUS)).thenReturn(authStatus);
+        when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_REQUEST_ID)).thenReturn(requestId);
         when(FrameworkUtils.getAuthenticationContextFromCache(sessionDataKey)).thenReturn(context);
 
         try {
             serverHYPRAuthenticatorService.getAuthenticationStatus(sessionDataKey);
+            // If the flow worked without throwing any errors the test case should fail.
+            Assert.fail();
         } catch (APIError e) {
             Assert.assertEquals(e.getCode(), HyprAuthenticatorConstants
                     .ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES.getCode());
@@ -175,15 +182,15 @@ public class ServerHYPRAuthenticatorServiceTest {
     public Object[][] getHyprTerminatingAuthStatusProviders() {
 
         return new String[][]{
-                {"COMPLETED"},
-                {"FAILED"},
-                {"CANCELED"},
+                {statusCompleted},
+                {statusFailed},
+                {statusCanceled},
         };
     }
 
-    @Test(dataProvider = "hyprTerminatingAuthStatusProviders", description = "Test case for handling authentication status " +
-            "property extracted from the authentication context already being assigned with a terminating status " +
-            "(i.e. 'COMPLETED', 'FAILED', 'CANCELED'), avoid making API call to the HYPR server.")
+    @Test(dataProvider = "hyprTerminatingAuthStatusProviders", description = "Test case for handling authentication " +
+            "status property extracted from the authentication context already being assigned with a terminating " +
+            "status (i.e. 'COMPLETED', 'FAILED', 'CANCELED'), avoid making API call to the HYPR server.")
     public void testHandleExistingAuthenticationStatusWithTerminatingStatus(String authStatus) {
 
         mockAuthenticationContext(context);
@@ -202,11 +209,11 @@ public class ServerHYPRAuthenticatorServiceTest {
     public Object[][] getHyprAuthStatusProviders() {
 
         return new String[][]{
-                {"INITIATED"},
-                {"INITIATED_RESPONSE"},
-                {"COMPLETED"},
-                {"FAILED"},
-                {"CANCELED"},
+                {statusInitiated},
+                {statusInitiatedResponse},
+                {statusCompleted},
+                {statusFailed},
+                {statusCanceled},
         };
     }
 
@@ -215,12 +222,12 @@ public class ServerHYPRAuthenticatorServiceTest {
     public void testHandleSuccessfulAuthenticationStatusRetrieving(String retrievedAuthStatus) {
 
         mockAuthenticationContext(context);
-        when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_STATUS)).thenReturn("PENDING");
+        when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_STATUS)).thenReturn(statusPending);
         when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_REQUEST_ID)).thenReturn(requestId);
         when(FrameworkUtils.getAuthenticationContextFromCache(sessionDataKey)).thenReturn(context);
 
         List<State> states = new ArrayList<>();
-        states.add(new State("REQUEST_SENT", ""));
+        states.add(new State(statusRequestSent, ""));
         states.add(new State(retrievedAuthStatus, ""));
 
         StateResponse stateResponse = new StateResponse(requestId, username, states);
@@ -234,19 +241,19 @@ public class ServerHYPRAuthenticatorServiceTest {
         StatusResponse.StatusEnum currentAuthenticationState = StatusResponse.StatusEnum.REQUEST_SENT;
 
         switch (statusResponse.getStatus().value()) {
-            case "INITIATED":
+            case statusInitiated:
                 currentAuthenticationState = StatusResponse.StatusEnum.INITIATED;
                 break;
-            case "INITIATED_RESPONSE":
+            case statusInitiatedResponse:
                 currentAuthenticationState = StatusResponse.StatusEnum.INITIATED_RESPONSE;
                 break;
-            case "COMPLETED":
+            case statusCompleted:
                 currentAuthenticationState = StatusResponse.StatusEnum.COMPLETED;
                 break;
-            case "FAILED":
+            case statusFailed:
                 currentAuthenticationState = StatusResponse.StatusEnum.FAILED;
                 break;
-            case "CANCELED":
+            case statusCanceled:
                 currentAuthenticationState = StatusResponse.StatusEnum.CANCELED;
                 break;
         }
@@ -254,18 +261,23 @@ public class ServerHYPRAuthenticatorServiceTest {
         Assert.assertEquals(statusResponse.getStatus(), currentAuthenticationState);
     }
 
-    @Test(description = "Test case for handling invalid or expired HYPR API token extracted from the " +
-            "HYPR configurations.")
-    public void testHandleInvalidAPIToken () {
+    @DataProvider(name = "getInvalidAuthenticationParameterProviders")
+    public Object[][] getInvalidAuthenticationParameterProviders() {
+
+        return new Object[][]{
+                {HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE},
+                {HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES}
+        };
+    }
+
+    @Test(dataProvider = "getInvalidAuthenticationParameterProviders", description = "Test case for handling invalid " +
+            " parameters such as requestId or expired HYPR API token.")
+    public void testHandleInvalidAPIToken(HyprAuthenticatorConstants.ErrorMessages errorMessage) {
 
         mockAuthenticationContext(context);
-        when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_STATUS)).thenReturn("PENDING");
+        when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_STATUS)).thenReturn(statusPending);
         when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_REQUEST_ID)).thenReturn(requestId);
         when(FrameworkUtils.getAuthenticationContextFromCache(sessionDataKey)).thenReturn(context);
-
-        HyprAuthenticatorConstants.ErrorMessages errorMessage =
-                HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE;
-
 
         mockedHyprAuthorizationAPIClient
                 .when(() -> HYPRAuthorizationAPIClient.getAuthenticationStatus(baseUrl, apiToken, requestId))
@@ -273,33 +285,11 @@ public class ServerHYPRAuthenticatorServiceTest {
 
         try {
             serverHYPRAuthenticatorService.getAuthenticationStatus(sessionDataKey);
+            // If the flow worked without throwing any errors the test case should fail.
+            Assert.fail();
         } catch (APIError e) {
-            Assert.assertEquals(e.getCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode());
+            Assert.assertEquals(e.getCode(), errorMessage.getCode());
         }
     }
 
-    @Test(description = "Test case for handling invalid authentication properties (i.e : requestId).")
-    public void testHandleInvalidAuthenticationProperties () {
-
-        mockAuthenticationContext(context);
-        when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_STATUS)).thenReturn("PENDING");
-        when(context.getProperty(HyprAuthenticatorConstants.HYPR.AUTH_REQUEST_ID)).thenReturn(requestId);
-        when(FrameworkUtils.getAuthenticationContextFromCache(sessionDataKey)).thenReturn(context);
-
-        HyprAuthenticatorConstants.ErrorMessages errorMessage =
-                HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES;
-
-
-        mockedHyprAuthorizationAPIClient
-                .when(() -> HYPRAuthorizationAPIClient.getAuthenticationStatus(baseUrl, apiToken, requestId))
-                .thenThrow(new HYPRAuthnFailedException(errorMessage.getCode(), errorMessage.getMessage()));
-
-        try {
-            serverHYPRAuthenticatorService.getAuthenticationStatus(sessionDataKey);
-        } catch (APIError e) {
-            Assert.assertEquals(e.getCode(), HyprAuthenticatorConstants
-                    .ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES.getCode());
-        }
-    }
 }
