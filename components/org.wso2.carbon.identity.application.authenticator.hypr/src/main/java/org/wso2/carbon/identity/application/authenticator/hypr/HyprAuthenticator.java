@@ -302,7 +302,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                 LOG.error(e.getErrorCode() + " : " + e.getMessage());
                 redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.INVALID_TOKEN);
             } else {
-                throw new AuthenticationFailedException(e.getMessage(),e);
+                throw new AuthenticationFailedException(e.getMessage(), e);
             }
         }
     }
@@ -360,7 +360,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
         context.setSubject(authenticatedUser);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Successfully logged in the user " + username);
+            LOG.debug("Successfully logged in the user " + getMaskedUsername(username));
         }
     }
 
