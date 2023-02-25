@@ -31,7 +31,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 import static org.wso2.carbon.identity.application.authenticator.hypr.rest.dispatcher.ErrorConstants.ERROR_CODE;
 
 /**
- * An exception mapper class that andles all the unhandled server errors, (ex:NullPointer).
+ * An exception mapper class that handles all the unhandled server errors, (ex:NullPointer).
  * Sends a default error response.
  */
 public class DefaultExceptionMapper implements ExceptionMapper<Throwable> {
