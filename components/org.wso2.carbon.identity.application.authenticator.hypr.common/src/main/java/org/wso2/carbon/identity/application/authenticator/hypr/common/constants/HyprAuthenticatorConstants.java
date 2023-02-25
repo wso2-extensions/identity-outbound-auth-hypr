@@ -36,40 +36,31 @@ public class HyprAuthenticatorConstants {
                 "Authentication when building the login URL."),
         AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE("65003",
                 "Authentication failed retrieving the registered devices."),
-        AUTHENTICATION_FAILED_EXTRACTING_MACHINE_ID_FAILURE("65004",
-                "Authentication failed when extracting the machine ID of the user."),
-        AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE("65005",
+        AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE("65004",
                 "Authentication failed when sending a push notification to the registered device."),
+        AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_INVALID_USER("65005",
+                "Authentication failed when sending a push notification to the registered device due to " +
+                        "providing an invalid username."),
         AUTHENTICATION_FAILED_RETRIEVING_HASH_ALGORITHM_FAILURE("65006",
                 "Authentication failed retrieving the hash algorithm."),
-        AUTHENTICATION_FAILED_EXTRACTING_REQUEST_ID_FAILURE("65007",
-                "Authentication failed when extracting the request ID provided by the HYPR server upon " +
-                        "initiating the send push notification request."),
-        AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE("65008",
+        AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE("65007",
                 "Authentication failed when retrieving status of the user authentication."),
-        HYPR_BASE_URL_INVALID_FAILURE("65009", "Provided HYPR base URL is invalid."),
-        HYPR_APP_ID_INVALID_FAILURE("65010", "Provided HYPR app ID is invalid."),
-        HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE("65011",
+        HYPR_BASE_URL_INVALID_FAILURE("65008", "Provided HYPR base URL is invalid."),
+        HYPR_APP_ID_INVALID_FAILURE("65009", "Provided HYPR app ID is invalid."),
+        HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE("65010",
                 "Provided HYPR endpoint API token is either invalid or expired"),
-        SERVER_ERROR_GENERAL("65012", "Server error occurred",
+        SERVER_ERROR_GENERAL("65011", "Server error occurred",
                 "Unable to complete the action due to a server error"),
-        SERVER_ERROR_INVALID_API_TOKEN("65013", "Invalid API token",
-                "The extracted HYPR API token is either expired or invalid."),
-        SERVER_ERROR_INVALID_HYPR_URL("65014", "Invalid HYPR Base URL.",
-                "Extracted HYPR Base URL doesn't exist."),
-        SERVER_ERROR_RETRIEVING_AUTHENTICATION_STATUS("65015",
-                "Error while retrieving authentication status",
-                "Error occurred while retrieving the authentication status from the HYPR server."),
-        SERVER_ERROR_INVALID_AUTHENTICATOR_CONFIGURATIONS("65016",
+        SERVER_ERROR_INVALID_AUTHENTICATOR_CONFIGURATIONS("65012",
                 "Invalid authenticator configurations",
                 "Extracted HYPR authenticator configurations missing either baseUrl or apiToken"),
-        SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES("65017",
+        SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES("65013",
                 "Invalid authenticator configurations",
                 "Extracted HYPR authentication properties from the context missing either authStatus or " +
                         "requestId"),
-        SERVER_ERROR_CREATING_HTTP_CLIENT("65018", "Error while creating http client.",
+        SERVER_ERROR_CREATING_HTTP_CLIENT("65014", "Error while creating http client.",
                 "Server error encountered while creating http client."),
-        SERVER_ERROR_GETTING_HTTP_CLIENT("65019", "Error while getting the http client.",
+        SERVER_ERROR_GETTING_HTTP_CLIENT("65015", "Error while getting the http client.",
                 "Error preparing http client to publish events."),
         CLIENT_ERROR_INVALID_SESSION_KEY("60001", "Invalid session key provided.",
                 "The provided session key doesn't exist.");
@@ -152,17 +143,6 @@ public class HyprAuthenticatorConstants {
         public static final String BASE_URL = "baseUrl";
         public static final String APP_ID = "appId";
         public static final String HYPR_API_TOKEN = "apiToken";
-
-        // HYPR API Parameters
-        public static final String MACHINE = "machine";
-        public static final String MACHINE_ID = "machineId";
-        public static final String REQUEST_ID = "requestId";
-        public static final String RESPONSE = "response";
-        public static final String NAMED_USER = "namedUser";
-        public static final String SESSION_NONCE = "sessionNonce";
-        public static final String DEVICE_NONCE = "deviceNonce";
-        public static final String SERVICE_NONCE = "serviceNonce";
-        public static final String SERVICE_MAC = "serviceHmac";
 
         // HYPR API Parameters value
         public static final String MACHINE_VALUE = "WEB";

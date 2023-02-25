@@ -19,8 +19,6 @@
 package org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.core;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
@@ -40,8 +38,6 @@ import javax.ws.rs.core.Response;
  * such as getting the authentication status of a user provided the session key.
  */
 public class ServerHYPRAuthenticatorService {
-
-    private static final Log log = LogFactory.getLog(ServerHYPRAuthenticatorService.class);
 
     /**
      * Get the authentication status of the user with the given session key via an API call to the HYPR server.
