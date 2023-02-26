@@ -9,7 +9,7 @@ at different levels.
 
 ![Authentication Flow Sequence Diagram](images/authenticationFlow.jpg)
 
-### Authenticator Component
+## Authenticator component
 The HYPR authenticator component is responsible for handling a user’s authentication requests. Once the user selects the  
 "Login with HYPR" option, the HYPR authenticator gets triggered as the initial component to start a request.
 
@@ -21,14 +21,14 @@ Simultaneously  a polling mechanism initiated from the frontend side checks regu
 responded to the request. Upon a successful authorization the user will be successfully login to the WSO2 Identity 
 Server protected app and upon a failure user will be redirected back to the HYPR login page.
 
-### REST API Component
+## REST API component
 The REST API component handles the API request related to authentication. The operation covered is;
 - Check the authentication status of the user.
 
-#### Sample Request
+### Sample request
 Request used for authentication is as follows.
 
-##### Authentication Status Check Request
+#### Authentication status check request
 | GET          | https://{host}/api/hypr/v1/authentication/status/sessionDataKey={sessionDataKey}                                                                                                     |
 |--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Purpose      | User authentication request status check                                                                                                                                             |
