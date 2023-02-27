@@ -153,6 +153,11 @@
                 <version>${gson.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.wso2.org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${pax-logging-api.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.wso2.carbon.identity.outbound.auth.hypr</groupId>
                 <artifactId>org.wso2.carbon.identity.application.authenticator.hypr.common</artifactId>
                 <version>${project.version}</version>
@@ -267,6 +272,7 @@
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
         <javax.ws.rs.version>1.0</javax.ws.rs.version>
         <springframework.version>5.3.19</springframework.version>
+        <pax-logging-api.version>2.1.0-wso2v4</pax-logging-api.version>
 
         <!-- Version Ranges -->
         <identity.framework.package.import.version.range>[5.14.0, 6.0.0)
