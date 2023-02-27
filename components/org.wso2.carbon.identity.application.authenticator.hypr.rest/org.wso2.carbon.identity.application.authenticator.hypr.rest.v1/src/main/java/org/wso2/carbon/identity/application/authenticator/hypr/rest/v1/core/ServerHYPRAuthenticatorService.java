@@ -19,8 +19,6 @@
 package org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.core;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.util.FrameworkUtils;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
@@ -40,8 +38,6 @@ import javax.ws.rs.core.Response;
  * such as getting the authentication status of a user provided the session key.
  */
 public class ServerHYPRAuthenticatorService {
-
-    private static final Log log = LogFactory.getLog(ServerHYPRAuthenticatorService.class);
 
     /**
      * Get the authentication status of the user with the given session key via an API call to the HYPR server.
@@ -91,16 +87,16 @@ public class ServerHYPRAuthenticatorService {
             return statusResponse;
 
         } catch (HYPRAuthnFailedException e) {
-            if (e.getErrorCode() == HyprAuthenticatorConstants
-                    .ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES.getCode()) {
+            if (HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES.getCode()
+                    .equals(e.getErrorCode())) {
                 // Handle invalid request id.
                 throw handleInvalidInput(HyprAuthenticatorConstants
                         .ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES);
-            } else if (e.getErrorCode() == HyprAuthenticatorConstants
-                    .ErrorMessages.SERVER_ERROR_INVALID_API_TOKEN.getCode()) {
+            } else if (HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE.getCode()
+                    .equals(e.getErrorCode())) {
                 // Handle invalid or expired api token.
                 throw handleError(Response.Status.INTERNAL_SERVER_ERROR,
-                        HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_INVALID_API_TOKEN);
+                        HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE);
             }
         }
 

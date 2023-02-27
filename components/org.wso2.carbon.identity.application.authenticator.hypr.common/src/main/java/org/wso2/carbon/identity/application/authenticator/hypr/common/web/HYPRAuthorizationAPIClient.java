@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.util.EntityUtils;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.exception.HYPRAuthnFailedException;
@@ -63,21 +64,22 @@ public class HYPRAuthorizationAPIClient {
         try {
             HttpResponse response = HYPRWebUtils.httpGet(apiToken, deviceInfoURL);
 
-            if (response.getStatusLine().getStatusCode() == 401) {
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+
+                Gson gson = new GsonBuilder().create();
+                HttpEntity entity = response.getEntity();
+                String jsonString = EntityUtils.toString(entity);
+                Type listType = new TypeToken<List<RegisteredDevice>>() { }.getType();
+
+                return new RegisteredDevicesResponse(gson.fromJson(jsonString, listType));
+
+            } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
                 throw getHyprAuthnFailedException(
                         HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE);
-            } else if (response.getStatusLine().getStatusCode() > 400) {
+            } else {
                 throw getHyprAuthnFailedException(
                         HyprAuthenticatorConstants.ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE);
             }
-
-            Gson gson = new GsonBuilder().create();
-            HttpEntity entity = response.getEntity();
-            String jsonString = EntityUtils.toString(entity);
-            Type listType = new TypeToken<List<RegisteredDevice>>() {
-            }.getType();
-
-            return new RegisteredDevicesResponse(gson.fromJson(jsonString, listType));
 
         } catch (IOException e) {
             throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
@@ -117,18 +119,23 @@ public class HYPRAuthorizationAPIClient {
             String jsonRequestBody = gson.toJson(deviceAuthenticationRequest);
             HttpResponse response = HYPRWebUtils.httpPost(apiToken, initiateAuthenticationURL, jsonRequestBody);
 
-            if (response.getStatusLine().getStatusCode() == 401) {
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+
+                HttpEntity entity = response.getEntity();
+                String jsonString = EntityUtils.toString(entity);
+
+                return gson.fromJson(jsonString, DeviceAuthenticationResponse.class);
+
+            } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
                 throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
                         .HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE);
-            } else if (response.getStatusLine().getStatusCode() >= 400) {
+            } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
+                throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
+                        .AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_INVALID_USER);
+            } else {
                 throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
                         .AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE);
             }
-
-            HttpEntity entity = response.getEntity();
-            String jsonString = EntityUtils.toString(entity);
-
-            return gson.fromJson(jsonString, DeviceAuthenticationResponse.class);
 
         } catch (IOException e) {
             throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
@@ -164,23 +171,24 @@ public class HYPRAuthorizationAPIClient {
         try {
             HttpResponse response = HYPRWebUtils.httpGet(apiToken, authenticationStatusPollURL);
 
-            if (response.getStatusLine().getStatusCode() == 200) {
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 
                 HttpEntity entity = response.getEntity();
                 String jsonString = EntityUtils.toString(entity);
 
                 Gson gson = new GsonBuilder().create();
-                StateResponse stateResponse = gson.fromJson(jsonString, StateResponse.class);
 
-                return stateResponse;
+                return gson.fromJson(jsonString, StateResponse.class);
 
-            } else if (response.getStatusLine().getStatusCode() == 400) {
+            } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
                 throw getHyprAuthnFailedException(
                         HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_INVALID_AUTHENTICATION_PROPERTIES);
-
-            } else if (response.getStatusLine().getStatusCode() == 401) {
+            } else if (response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
                 throw getHyprAuthnFailedException(
-                        HyprAuthenticatorConstants.ErrorMessages.SERVER_ERROR_INVALID_API_TOKEN);
+                        HyprAuthenticatorConstants.ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE);
+            } else {
+                throw getHyprAuthnFailedException(HyprAuthenticatorConstants
+                        .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE);
             }
 
         } catch (IOException e) {
@@ -190,8 +198,6 @@ public class HYPRAuthorizationAPIClient {
             throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
                     .SERVER_ERROR_CREATING_HTTP_CLIENT, e);
         }
-
-        return null;
     }
 
     private static HYPRAuthnFailedException getHyprAuthnFailedException(

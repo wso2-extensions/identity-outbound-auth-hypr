@@ -221,7 +221,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      * @throws HYPRAuthnFailedException Exception thrown while sending push notification to the registered device.
      */
     private void initiateHYPRAuthenticationRequest(HttpServletRequest request, HttpServletResponse response,
-                                                   AuthenticationContext context) throws HYPRAuthnFailedException {
+                                                   AuthenticationContext context) throws AuthenticationFailedException {
 
         String username = request.getParameter(HYPR.USERNAME);
 
@@ -302,7 +302,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                 LOG.error(e.getErrorCode() + " : " + e.getMessage());
                 redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.INVALID_TOKEN);
             } else {
-                throw e;
+                throw new AuthenticationFailedException(e.getMessage(), e);
             }
         }
     }
@@ -360,7 +360,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
         context.setSubject(authenticatedUser);
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Successfully logged in the user " + username);
+            LOG.debug("Successfully logged in the user " + getMaskedUsername(username));
         }
     }
 
