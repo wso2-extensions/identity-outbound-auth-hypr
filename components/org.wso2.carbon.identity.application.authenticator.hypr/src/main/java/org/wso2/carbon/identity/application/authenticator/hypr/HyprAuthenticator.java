@@ -170,13 +170,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                                                  AuthenticationContext context) throws AuthenticationFailedException {
 
         try {
-            if (context.getLastAuthenticatedUser() != null) {
-                // If the user is already authenticated, initiate HYPR authentication request.
-                initiateHYPRAuthenticationRequest(request, response, context);
-            } else {
-                // If the user is not authenticated, redirect to the HYPR login page to prompt username.
-                redirectHYPRLoginPage(response, context, null);
-            }
+            redirectHYPRLoginPage(response, context, null);
         } catch (AuthenticationFailedException e) {
             String errorMessage = "Error occurred when trying to redirect user to the login page.";
             throw new AuthenticationFailedException(errorMessage, e);
@@ -236,7 +230,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             // loop through the authentication steps and find the authenticated user from the subject identifier step.
             if (stepConfigMap != null) {
                 for (StepConfig stepConfig : stepConfigMap.values()) {
-                    if (stepConfig.getAuthenticatedUser() != null && stepConfig.isSubjectIdentifierStep()) {
+                    if (stepConfig.isSubjectIdentifierStep() && stepConfig.getAuthenticatedUser() != null ) {
                         username = stepConfig.getAuthenticatedUser().getUserName();
                         break;
                     }
@@ -427,8 +421,13 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                 return AuthenticatorFlowStatus.INCOMPLETE;
             }
         } else {
-            // Redirect the user to the login page.
-            initiateAuthenticationRequest(request, response, context);
+            if (context.getLastAuthenticatedUser() != null) {
+                // If the user is already authenticated, initiate HYPR authentication request.
+                initiateHYPRAuthenticationRequest(request, response, context);
+            } else {
+                // If the user is not authenticated, redirect to the HYPR login page to prompt username.
+                initiateAuthenticationRequest(request, response, context);
+            }
             return AuthenticatorFlowStatus.INCOMPLETE;
         }
         return super.process(request, response, context);
