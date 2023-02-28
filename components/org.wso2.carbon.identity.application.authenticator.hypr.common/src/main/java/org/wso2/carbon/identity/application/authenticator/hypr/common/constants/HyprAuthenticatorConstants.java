@@ -168,6 +168,7 @@ public class HyprAuthenticatorConstants {
             INVALID_TOKEN("INVALID_TOKEN", "Authentication failed due to an internal server error. " +
                     "To fix this, contact your system administrator."),
             INVALID_REQUEST("INVALID_REQUEST", "Invalid username provided"),
+            INVALID_USER("INVALID_USER", "User does not exist in HYPR"),
             PENDING("PENDING", "Authentication with HYPR is in progress. Awaiting for the user to " +
                     "authenticate via the registered smart device"),
             COMPLETED("COMPLETED", "Authentication successfully completed."),

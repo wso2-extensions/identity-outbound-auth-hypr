@@ -114,6 +114,8 @@
                             version="${identity.framework.package.import.version.range}",
                             org.wso2.carbon.identity.application.authentication.framework.model;
                             version="${identity.framework.package.import.version.range}",
+                            org.wso2.carbon.identity.application.authentication.framework.config.model;
+                            version="${identity.framework.package.import.version.range}",
                             org.wso2.carbon.identity.application.common.model;
                             version="${identity.framework.package.import.version.range}",
                             org.wso2.carbon.identity.core; version="${identity.framework.package.import.version.range}"
