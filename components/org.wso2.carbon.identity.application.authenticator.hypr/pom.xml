@@ -100,6 +100,7 @@
                             org.apache.http.client.methods; version="${httpcomponents-httpclient.imp.pkg.version.range}",
                             org.apache.http.entity; version="${httpcore.version.osgi.import.range}",
                             org.apache.http.impl.client; version="${httpcomponents-httpclient.imp.pkg.version.range}",
+                            org.apache.http.client.utils; version="${httpcomponents-httpclient.imp.pkg.version.range}",
                             org.apache.http.message; version="${httpcore.version.osgi.import.range}",
                             org.apache.http.util; version="${httpcore.version.osgi.import.range}",
 

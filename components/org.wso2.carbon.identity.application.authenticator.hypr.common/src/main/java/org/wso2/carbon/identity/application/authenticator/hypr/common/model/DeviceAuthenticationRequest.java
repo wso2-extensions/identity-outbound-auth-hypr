@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authenticator.hypr.common.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.web.HYPRWebUtils;
 
@@ -30,6 +31,7 @@ import java.util.Map;
 public class DeviceAuthenticationRequest {
 
     private final String namedUser;
+    @SuppressWarnings("SS_SHOULD_BE_STATIC")
     private static final String machine = HyprAuthenticatorConstants.HYPR.MACHINE_VALUE;
     private final String machineId;
     private final String appId;
