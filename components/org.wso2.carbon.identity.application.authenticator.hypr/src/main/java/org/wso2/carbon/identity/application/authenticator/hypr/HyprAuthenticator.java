@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.identity.application.authentication.framework.AbstractApplicationAuthenticator;
 import org.wso2.carbon.identity.application.authentication.framework.AuthenticatorFlowStatus;
 import org.wso2.carbon.identity.application.authentication.framework.FederatedApplicationAuthenticator;
+import org.wso2.carbon.identity.application.authentication.framework.config.model.StepConfig;
 import org.wso2.carbon.identity.application.authentication.framework.context.AuthenticationContext;
 import org.wso2.carbon.identity.application.authentication.framework.exception.AuthenticationFailedException;
 import org.wso2.carbon.identity.application.authentication.framework.exception.LogoutFailedException;
@@ -223,7 +224,23 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
     private void initiateHYPRAuthenticationRequest(HttpServletRequest request, HttpServletResponse response,
                                                    AuthenticationContext context) throws AuthenticationFailedException {
 
-        String username = request.getParameter(HYPR.USERNAME);
+        String username = null;
+        if (context.getSequenceConfig() != null) {
+            Map<Integer, StepConfig> stepConfigMap = context.getSequenceConfig().getStepMap();
+            // loop through the authentication steps and find the authenticated user from the subject identifier step.
+            if (stepConfigMap != null) {
+                for (StepConfig stepConfig : stepConfigMap.values()) {
+                    if (stepConfig.isSubjectIdentifierStep() && stepConfig.getAuthenticatedUser() != null ) {
+                        username = stepConfig.getAuthenticatedUser().getUserName();
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (StringUtils.isEmpty(username)) {
+            username = request.getParameter(HYPR.USERNAME);
+        }
 
         // Extract the HYPR configurations.
         Map<String, String> authenticatorProperties = context.getAuthenticatorProperties();
@@ -246,7 +263,12 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             // If an empty array received for the registered devices redirect user back to the login page and
             // display "Invalid username" since a HYPR user cannot exist without a set of registered devices.
             if (registeredDevicesResponse.getRegisteredDevices().isEmpty()) {
-                redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.INVALID_REQUEST);
+                // If HYPR is used as a 2nd factor, disabling the username field and login button in login page
+                if (context.getCurrentStep() == 1) {
+                    redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.INVALID_REQUEST);
+                } else {
+                    redirectHYPRLoginPage(response, context, HYPR.AuthenticationStatus.INVALID_USER);
+                }
                 return;
             }
 
@@ -399,8 +421,13 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
                 return AuthenticatorFlowStatus.INCOMPLETE;
             }
         } else {
-            // Redirect the user to the login page.
-            initiateAuthenticationRequest(request, response, context);
+            if (context.getLastAuthenticatedUser() != null) {
+                // If the user is already authenticated, initiate HYPR authentication request.
+                initiateHYPRAuthenticationRequest(request, response, context);
+            } else {
+                // If the user is not authenticated, redirect to the HYPR login page to prompt username.
+                initiateAuthenticationRequest(request, response, context);
+            }
             return AuthenticatorFlowStatus.INCOMPLETE;
         }
         return super.process(request, response, context);
