@@ -18,6 +18,7 @@
 
 package org.wso2.carbon.identity.application.authenticator.hypr;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,9 +46,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 
 /**
  * The HyprAuthenticator class contains all the functional tasks handled by the authenticator with HYPR IdP and
@@ -58,6 +59,16 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
         FederatedApplicationAuthenticator {
 
     private static final Log LOG = LogFactory.getLog(HyprAuthenticator.class);
+
+    private static HYPRAuthnFailedException getHyprAuthnFailedException(ErrorMessages errorMessage) {
+
+        return new HYPRAuthnFailedException(errorMessage.getCode(), errorMessage.getMessage());
+    }
+
+    private static HYPRAuthnFailedException getHyprAuthnFailedException(ErrorMessages errorMessage, Exception e) {
+
+        return new HYPRAuthnFailedException(errorMessage.getCode(), errorMessage.getMessage(), e);
+    }
 
     /**
      * Returns the authenticator's name.
@@ -185,6 +196,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      * @param authenticationStatus The authentication status of the user when authenticating via HYPR.
      * @throws HYPRAuthnFailedException Exception thrown while redirecting user to login page.
      */
+    @SuppressWarnings("UNVALIDATED_REDIRECT")
     private void redirectHYPRLoginPage(HttpServletResponse response, AuthenticationContext context,
                                        HYPR.AuthenticationStatus authenticationStatus)
             throws HYPRAuthnFailedException {
@@ -221,6 +233,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
      * @param context  The Authentication context received by the authenticator.
      * @throws HYPRAuthnFailedException Exception thrown while sending push notification to the registered device.
      */
+    @SuppressWarnings(value = "CRLF_INJECTION_LOGS", justification = "username should be sanitized at this point.")
     private void initiateHYPRAuthenticationRequest(HttpServletRequest request, HttpServletResponse response,
                                                    AuthenticationContext context) throws AuthenticationFailedException {
 
@@ -230,7 +243,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             // loop through the authentication steps and find the authenticated user from the subject identifier step.
             if (stepConfigMap != null) {
                 for (StepConfig stepConfig : stepConfigMap.values()) {
-                    if (stepConfig.isSubjectIdentifierStep() && stepConfig.getAuthenticatedUser() != null ) {
+                    if (stepConfig.isSubjectIdentifierStep() && stepConfig.getAuthenticatedUser() != null) {
                         username = stepConfig.getAuthenticatedUser().getUserName();
                         break;
                     }
@@ -330,6 +343,7 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
     }
 
     private String getMaskedUsername(String username) {
+
         if (LoggerUtils.isLogMaskingEnable) {
             return LoggerUtils.getMaskedContent(username);
         }
@@ -351,16 +365,6 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
             throw getHyprAuthnFailedException(ErrorMessages.HYPR_ENDPOINT_API_TOKEN_INVALID_FAILURE);
         }
 
-    }
-
-    private static HYPRAuthnFailedException getHyprAuthnFailedException(ErrorMessages errorMessage) {
-
-        return new HYPRAuthnFailedException(errorMessage.getCode(), errorMessage.getMessage());
-    }
-
-    private static HYPRAuthnFailedException getHyprAuthnFailedException(ErrorMessages errorMessage, Exception e) {
-
-        return new HYPRAuthnFailedException(errorMessage.getCode(), errorMessage.getMessage(), e);
     }
 
     /**

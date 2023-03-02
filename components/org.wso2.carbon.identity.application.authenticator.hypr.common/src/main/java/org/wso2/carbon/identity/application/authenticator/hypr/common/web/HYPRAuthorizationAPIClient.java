@@ -24,6 +24,7 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.util.EntityUtils;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.exception.HYPRAuthnFailedException;
@@ -36,6 +37,7 @@ import org.wso2.carbon.identity.application.authenticator.hypr.common.model.Stat
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -56,20 +58,23 @@ public class HYPRAuthorizationAPIClient {
                                                                         String username)
             throws HYPRAuthnFailedException {
 
-        // Device info URL :
-        // {{baseUrl}}/rp/ api/oob/client/authentication/{{appId}}/{{username}}/devices
-        String deviceInfoURL = String.format("%s%s%s/%s/devices", baseUrl,
-                HyprAuthenticatorConstants.HYPR.HYPR_USER_DEVICE_INFO_PATH, appId, username);
-
         try {
-            HttpResponse response = HYPRWebUtils.httpGet(apiToken, deviceInfoURL);
+
+            // Device info URL: {{baseUrl}}/rp/ api/oob/client/authentication/{{appId}}/{{username}}/devices
+            URIBuilder uriBuilder = new URIBuilder(baseUrl);
+            uriBuilder.setPath(
+                    String.format("%s%s/%s/devices", HyprAuthenticatorConstants.HYPR.HYPR_USER_DEVICE_INFO_PATH, appId,
+                            username));
+
+            HttpResponse response = HYPRWebUtils.httpGet(apiToken, uriBuilder.build());
 
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 
                 Gson gson = new GsonBuilder().create();
                 HttpEntity entity = response.getEntity();
                 String jsonString = EntityUtils.toString(entity);
-                Type listType = new TypeToken<List<RegisteredDevice>>() { }.getType();
+                Type listType = new TypeToken<List<RegisteredDevice>>() {
+                }.getType();
 
                 return new RegisteredDevicesResponse(gson.fromJson(jsonString, listType));
 
@@ -81,6 +86,9 @@ public class HYPRAuthorizationAPIClient {
                         HyprAuthenticatorConstants.ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE);
             }
 
+        } catch (URISyntaxException e) {
+            throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages.HYPR_BASE_URL_INVALID_FAILURE,
+                    e);
         } catch (IOException e) {
             throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
                     .AUTHENTICATION_FAILED_RETRIEVING_REG_DEVICES_FAILURE, e);
@@ -108,16 +116,15 @@ public class HYPRAuthorizationAPIClient {
             throws HYPRAuthnFailedException {
 
         try {
-
-            String initiateAuthenticationURL = String.format("%s%s", baseUrl,
-                    HyprAuthenticatorConstants.HYPR.HYPR_AUTH_PATH);
+            URIBuilder uriBuilder = new URIBuilder(baseUrl);
+            uriBuilder.setPath(HyprAuthenticatorConstants.HYPR.HYPR_AUTH_PATH);
 
             DeviceAuthenticationRequest deviceAuthenticationRequest =
                     new DeviceAuthenticationRequest(username, machineId, appId);
 
             Gson gson = new GsonBuilder().create();
             String jsonRequestBody = gson.toJson(deviceAuthenticationRequest);
-            HttpResponse response = HYPRWebUtils.httpPost(apiToken, initiateAuthenticationURL, jsonRequestBody);
+            HttpResponse response = HYPRWebUtils.httpPost(apiToken, uriBuilder.build(), jsonRequestBody);
 
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 
@@ -137,6 +144,9 @@ public class HYPRAuthorizationAPIClient {
                         .AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE);
             }
 
+        } catch (URISyntaxException e) {
+            throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages.HYPR_BASE_URL_INVALID_FAILURE,
+                    e);
         } catch (IOException e) {
             throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages
                     .AUTHENTICATION_FAILED_SENDING_PUSH_NOTIFICATION_FAILURE, e);
@@ -163,13 +173,12 @@ public class HYPRAuthorizationAPIClient {
     public static StateResponse getAuthenticationStatus(String baseUrl, String apiToken, String requestId)
             throws HYPRAuthnFailedException {
 
-        // Get authentication status URL :
-        // {{baseUrl}}/rp/api/oob/client/authentication/requests/{{requestId}}
-        String authenticationStatusPollURL = String.format("%s%s%s", baseUrl,
-                HyprAuthenticatorConstants.HYPR.HYPR_AUTH_STATUS_CHECK_PATH, requestId);
-
         try {
-            HttpResponse response = HYPRWebUtils.httpGet(apiToken, authenticationStatusPollURL);
+            // Get authentication status URL: {{baseUrl}}/rp/api/oob/client/authentication/requests/{{requestId}}
+            URIBuilder uriBuilder = new URIBuilder(baseUrl);
+            uriBuilder.setPath(HyprAuthenticatorConstants.HYPR.HYPR_AUTH_STATUS_CHECK_PATH + requestId);
+
+            HttpResponse response = HYPRWebUtils.httpGet(apiToken, uriBuilder.build());
 
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 
@@ -191,6 +200,9 @@ public class HYPRAuthorizationAPIClient {
                         .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE);
             }
 
+        } catch (URISyntaxException e) {
+            throw getHyprAuthnFailedException(HyprAuthenticatorConstants.ErrorMessages.HYPR_BASE_URL_INVALID_FAILURE,
+                    e);
         } catch (IOException e) {
             throw getHyprAuthnFailedException(HyprAuthenticatorConstants
                     .ErrorMessages.AUTHENTICATION_FAILED_RETRIEVING_AUTHENTICATION_STATUS_FAILURE, e);

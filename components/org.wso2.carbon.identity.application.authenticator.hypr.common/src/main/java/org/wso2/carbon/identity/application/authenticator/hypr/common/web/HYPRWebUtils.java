@@ -31,14 +31,26 @@ import org.apache.http.message.BasicHttpResponse;
 import org.wso2.carbon.identity.application.authenticator.hypr.common.exception.HYPRClientException;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Random;
 
 /**
  * The HYPRWebUtils class contains all the general helper functions required by the HYPR Authenticator.
  */
 public class HYPRWebUtils {
+
+    private static final Random rand = new SecureRandom();
+
+    /**
+     * Private constructor.
+     */
+    private HYPRWebUtils() {
+
+    }
 
     /**
      * Send an HTTP Get request.
@@ -49,7 +61,7 @@ public class HYPRWebUtils {
      * @throws IOException         Exception thrown when an error occurred during extracting the HTTP response content.
      * @throws HYPRClientException Exception thrown when an error occurred with the HTTP client connection.
      */
-    public static HttpResponse httpGet(String apiToken, String requestURL) throws IOException, HYPRClientException {
+    public static HttpResponse httpGet(String apiToken, URI requestURL) throws IOException, HYPRClientException {
 
         HttpGet request = new HttpGet(requestURL);
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiToken);
@@ -70,7 +82,7 @@ public class HYPRWebUtils {
      * @throws IOException         Exception thrown when an error occurred during extracting the HTTP response content.
      * @throws HYPRClientException Exception thrown when an error occurred with the HTTP client connection.
      */
-    public static HttpResponse httpPost(String apiToken, String requestURL, String requestBody)
+    public static HttpResponse httpPost(String apiToken, URI requestURL, String requestBody)
             throws IOException, HYPRClientException {
 
         HttpPost request = new HttpPost(requestURL);
@@ -100,7 +112,7 @@ public class HYPRWebUtils {
      */
     private static int generateRandomPIN() {
 
-        return 100000 + new Random().nextInt(900000);
+        return 100000 + rand.nextInt(900000);
     }
 
     /**
@@ -113,15 +125,11 @@ public class HYPRWebUtils {
     private static String doSha256(final String stringToHash) throws NoSuchAlgorithmException {
 
         final MessageDigest md = MessageDigest.getInstance("SHA-256");
-        md.update(stringToHash.getBytes());
+        md.update(stringToHash.getBytes(StandardCharsets.UTF_8));
         final byte[] bytes = md.digest();
         final StringBuilder hexString = new StringBuilder();
         for (final byte aByte : bytes) {
-            final String hex = Integer.toHexString(0xFF & aByte);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
+            hexString.append(String.format("%02X", aByte));
         }
         return hexString.toString();
     }
@@ -129,7 +137,7 @@ public class HYPRWebUtils {
     /**
      * Generate a random pin and get its hashcode.
      *
-     * @return hashCode     The hash code  of the generated random pin.
+     * @return hashCode     The hash code of the generated random pin.
      * @throws NoSuchAlgorithmException Exception thrown when an error occurred during getting the SHA-256 algorithm.
      */
     public static String getRandomPinSha256() throws NoSuchAlgorithmException {

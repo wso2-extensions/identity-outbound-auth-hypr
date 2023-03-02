@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
@@ -49,11 +50,16 @@ import org.wso2.carbon.identity.application.authenticator.hypr.common.web.HYPRWe
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.mockStatic;
+import static org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants.HYPR.HYPR_AUTH_PATH;
+import static org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants.HYPR.HYPR_AUTH_STATUS_CHECK_PATH;
+import static org.wso2.carbon.identity.application.authenticator.hypr.common.constants.HyprAuthenticatorConstants.HYPR.HYPR_USER_DEVICE_INFO_PATH;
 
 /**
  * The HYPRAuthorizationAPIClientTest class contains all the test cases corresponding to the HYPRAuthorizationAPIClient
@@ -72,17 +78,21 @@ public class HYPRAuthorizationAPIClientTest {
     private static final String requestId = "testRequestId";
     private static final String statusCompleted = "COMPLETED";
     private static final String statusRequestSent = "REQUEST_SENT";
-    private static final String deviceInfoURL =
-            baseUrl + HyprAuthenticatorConstants.HYPR.HYPR_USER_DEVICE_INFO_PATH + appID + "/" + username + "/devices";
-    private static final String initiateAuthenticationURL = baseUrl + HyprAuthenticatorConstants.HYPR.HYPR_AUTH_PATH;
-    String authenticationStatusPollURL =
-            baseUrl + HyprAuthenticatorConstants.HYPR.HYPR_AUTH_STATUS_CHECK_PATH + requestId;
+    private static URI initiateAuthenticationURL;
+    private static URI deviceInfoURL;
+    private static URI authenticationStatusPollURL;
     private MockedStatic<HYPRWebUtils> mockedHyprWebUtils;
     private Gson gson;
 
     @BeforeClass
-    public void setUp() {
+    public void setUp() throws URISyntaxException {
 
+        deviceInfoURL =
+                new URIBuilder(baseUrl).setPath(HYPR_USER_DEVICE_INFO_PATH + appID + "/" + username + "/devices")
+                        .build();
+        authenticationStatusPollURL =
+                new URIBuilder(baseUrl).setPath(HYPR_AUTH_STATUS_CHECK_PATH + requestId).build();
+        initiateAuthenticationURL = new URIBuilder(baseUrl).setPath(HYPR_AUTH_PATH).build();
         gson = new Gson();
     }
 
@@ -184,7 +194,7 @@ public class HYPRAuthorizationAPIClientTest {
         }
     }
 
-    public String getDeviceAuthenticationRequestJson (String username, String machineId, String appID)
+    public String getDeviceAuthenticationRequestJson(String username, String machineId, String appID)
             throws NoSuchAlgorithmException {
 
         DeviceAuthenticationRequest deviceAuthenticationRequest =
@@ -388,6 +398,5 @@ public class HYPRAuthorizationAPIClientTest {
             Assert.assertEquals(e.getErrorCode(), errorMessage.getCode());
         }
     }
-
 
 }

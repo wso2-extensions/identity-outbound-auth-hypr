@@ -30,7 +30,7 @@ import java.util.Map;
 public class DeviceAuthenticationRequest {
 
     private final String namedUser;
-    private final String machine = HyprAuthenticatorConstants.HYPR.MACHINE_VALUE;
+    private static final String machine = HyprAuthenticatorConstants.HYPR.MACHINE_VALUE;
     private final String machineId;
     private final String appId;
     private final String sessionNonce;
