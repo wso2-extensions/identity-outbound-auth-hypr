@@ -48,6 +48,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -186,7 +187,6 @@ public class HyprAuthenticatorTest {
 
         Assert.assertEquals(hyprAuthenticator.getName(), HyprAuthenticatorConstants.HYPR.AUTHENTICATOR_NAME);
     }
-
 
     @Test(description = "Test case for process() method where the user requests to initiate the login with HYPR " +
             "without providing any username.")

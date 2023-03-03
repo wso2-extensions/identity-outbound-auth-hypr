@@ -31,6 +31,7 @@ import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.StatusRes
 
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.ws.rs.core.Response;
 
 /**
