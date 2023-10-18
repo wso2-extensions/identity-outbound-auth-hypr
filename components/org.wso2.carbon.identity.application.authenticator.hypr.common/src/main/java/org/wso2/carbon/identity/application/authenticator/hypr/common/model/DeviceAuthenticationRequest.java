@@ -32,7 +32,7 @@ public class DeviceAuthenticationRequest {
 
     private final String namedUser;
     @SuppressWarnings("SS_SHOULD_BE_STATIC")
-    private static final String machine = HyprAuthenticatorConstants.HYPR.MACHINE_VALUE;
+    private final String machine = HyprAuthenticatorConstants.HYPR.MACHINE_VALUE;
     private final String machineId;
     private final String appId;
     private final String sessionNonce;
