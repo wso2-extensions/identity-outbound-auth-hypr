@@ -38,6 +38,9 @@ Note : The latest project artifacts can also be downloaded from the Connector St
 `org.wso2.carbon.identity.application.authenticator.hypr.common` → `target`.
 7. Copy the `org.wso2.carbon.identity.application.authenticator.hypr.common-1.0.0-SNAPSHOT.jar` file.
 8. Navigate to `<IS_HOME>/repository/components/lib` directory and paste the `.jar` file.
+9. Navigate to `identity-outbound-auth-hypr/components` → `org.wso2.carbon.identity.application.authenticator.hypr`
+   → `src/main/resources/artifacts` and copy the `hypr` directory.
+10. Paste it into `<IS_HOME>/repository/resources/identity/extensions/connections` directory.
 
 **Step 3:** Deploying the HYPR REST API
 1. Navigate to `identity-outbound-auth-hypr/components` → `org.wso2.carbon.identity.application.authenticator.hypr.rest` 
