@@ -142,7 +142,7 @@
                     pollAuthStatus();
 
                 } else if (status == 'CANCELED' || status == 'FAILED' || status == 'INVALID_REQUEST' || status == 'INVALID_TOKEN'){
-                    handleError(urlParams.get("message"));
+                    handleError(encodeURIComponent(urlParams.get("message")));
                 }
             }
         });
