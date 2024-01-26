@@ -356,7 +356,7 @@
 
 
         <!-- Version Ranges -->
-        <identity.framework.package.import.version.range>[5.14.0, 7.0.0)
+        <identity.framework.package.import.version.range>[5.14.0, 8.0.0)
         </identity.framework.package.import.version.range>
         <osgi.service.component.imp.pkg.version.range>[1.2.0, 2.0.0)</osgi.service.component.imp.pkg.version.range>
         <osgi.framework.imp.pkg.version.range>[1.7.0, 2.0.0)</osgi.framework.imp.pkg.version.range>
