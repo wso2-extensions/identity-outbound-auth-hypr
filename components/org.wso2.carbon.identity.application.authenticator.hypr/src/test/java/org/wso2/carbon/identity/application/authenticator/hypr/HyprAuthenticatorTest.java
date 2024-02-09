@@ -67,6 +67,7 @@ public class HyprAuthenticatorTest {
     private static final String appID = "testApp";
     private static final String baseUrl = "https://wso2.hypr.com";
     private static final String sessionDataKey = "testSessionKey";
+    private static final String authType = "hypr";
     private static final String deviceId = "testDeviceID";
     private static final String protocolVersion = null;
     private static final String modelNumber = "testModelNumber";
@@ -157,11 +158,22 @@ public class HyprAuthenticatorTest {
     @Test(description = "Test case for canHandle() method.")
     public void testCanHandle() {
 
+        // The request contains the session data key and the auth type.
         when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.SESSION_DATA_KEY))
                 .thenReturn(sessionDataKey);
+        when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.AUTH_TYPE))
+                .thenReturn(authType);
         Assert.assertTrue(hyprAuthenticator.canHandle(httpServletRequest));
 
+        // The request does not contain the session data key.
         when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.SESSION_DATA_KEY)).thenReturn(null);
+        Assert.assertFalse(hyprAuthenticator.canHandle(httpServletRequest));
+
+        // The request does not contain the auth type.
+        when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.SESSION_DATA_KEY))
+                .thenReturn(sessionDataKey);
+        when(httpServletRequest.getParameter(HyprAuthenticatorConstants.HYPR.AUTH_TYPE))
+                .thenReturn(null);
         Assert.assertFalse(hyprAuthenticator.canHandle(httpServletRequest));
     }
 
