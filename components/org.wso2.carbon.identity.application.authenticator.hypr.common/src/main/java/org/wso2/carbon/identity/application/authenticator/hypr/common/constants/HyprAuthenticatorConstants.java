@@ -135,6 +135,8 @@ public class HyprAuthenticatorConstants {
         public static final String SESSION_DATA_KEY = "sessionDataKey";
         public static final String TENANT_DOMAIN = "tenantDomain";
         public static final String USERNAME = "username";
+        public static final String AUTH_TYPE = "authType";
+        public static final String AUTH_TYPE_HYPR = "hypr";
 
         public static final String CORRELATION_ID_KEY = "Correlation-ID";
         public static final String HYPR_API_PREFIX = "HYPR-API-";

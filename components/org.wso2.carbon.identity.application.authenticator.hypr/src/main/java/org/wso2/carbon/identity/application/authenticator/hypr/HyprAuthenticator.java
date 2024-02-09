@@ -164,7 +164,9 @@ public class HyprAuthenticator extends AbstractApplicationAuthenticator implemen
     public boolean canHandle(HttpServletRequest request) {
 
         // With HYPR if sessionDataKey is not received then the entire flow will break as it highly relied on it.
-        return request.getParameter(HYPR.SESSION_DATA_KEY) != null;
+        return StringUtils.isNotBlank(request.getParameter(HYPR.AUTH_TYPE)) &&
+                request.getParameter(HYPR.AUTH_TYPE).equals(HYPR.AUTH_TYPE_HYPR) &&
+                StringUtils.isNotBlank(request.getParameter(HYPR.SESSION_DATA_KEY));
     }
 
     /**
