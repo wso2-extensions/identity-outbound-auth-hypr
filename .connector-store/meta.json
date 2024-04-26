@@ -1,0 +1,17 @@
+{
+    "name": "HYPR Authenticator",
+    "owner": "WSO2",
+    "category": "Federated authenticator",
+    "documentationUrl": "https://github.com/wso2-extensions/identity-outbound-auth-hypr/tree/main/docs",
+    "description": "The HYPR connector offers a hassle-free approach to multi-factor authentication without the need for passwords. It leverages biometric factors like facial recognition and fingerprint scanning to provide a secure and user-friendly authentication experience. Users can easily authenticate themselves with a quick biometric scan on their own device, enhancing security and improving the overall user experience.",
+    "status": "Active",
+    "labels": [],
+    "releases": [
+        {
+            "tagName": "1.0.9",
+            "products": [
+                "IS 7.0.0"
+            ]
+        }
+    ]
+}
