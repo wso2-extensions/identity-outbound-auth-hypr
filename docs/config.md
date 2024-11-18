@@ -16,7 +16,7 @@ To use the connector, you'll need:
 - A configured HYPR environment.
 - A HYPR user account and mobile app to use for testing.
 
-Note: Get the support from HYPR to configure a HYPR Application via the HYPR Control Center.
+Note: Get the support from HYPR to configure a HYPR Application via the HYPR Control Center. You can also use the following [guide](configure_hypr.md) to help with your configurations.
 
 ## Setting up and installing the HYPR connector
 
@@ -76,6 +76,11 @@ interface for defining essential HYPR credentials, such as base URL, relying par
 and API token.
 
 ![Configuring HYPR in WSO2 Console](images/wso2Console.png)
+
+
+With IS 7.0 and above you can use the react console and add new connection from connections page.
+
+![Configuring HYPR in WSO2 React Console](images/wso2ReactConsole.png)
 
 ### Base URL
 This refers to the Base URL you received from HYPR upon creating a tenant for your organization.
