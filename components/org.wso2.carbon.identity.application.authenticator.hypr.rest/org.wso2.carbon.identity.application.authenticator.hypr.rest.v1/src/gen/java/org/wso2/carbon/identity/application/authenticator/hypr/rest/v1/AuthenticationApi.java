@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.identity.application.authenticator.hypr.rest.v1;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 
@@ -34,6 +33,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 import io.swagger.annotations.*;
+import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.factories.AuthenticationApiServiceFactory;
 
 import javax.validation.constraints.*;
 
@@ -42,8 +42,12 @@ import javax.validation.constraints.*;
 
 public class AuthenticationApi {
 
-    @Autowired
-    private AuthenticationApiService delegate;
+    private final AuthenticationApiService delegate;
+
+    public AuthenticationApi() {
+
+        this.delegate = AuthenticationApiServiceFactory.getAuthenticationApi();
+    }
 
     @Valid
     @GET
