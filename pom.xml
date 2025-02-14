@@ -31,13 +31,13 @@
         <url>https://github.com/wso2-extensions/identity-outbound-auth-hypr.git</url>
         <developerConnection>scm:git:https://github.com/wso2-extensions/identity-outbound-auth-hypr.git</developerConnection>
         <connection>scm:git:https://github.com/wso2-extensions/identity-outbound-auth-hypr.git</connection>
-        <tag>v1.0.10</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <groupId>org.wso2.carbon.identity.outbound.auth.hypr</groupId>
     <artifactId>identity-outbound-auth-hypr</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.10</version>
+    <version>1.0.11-SNAPSHOT</version>
     <name>WSO2 Carbon - HYPR Authenticator Feature Aggregator Module</name>
     <modules>
         <module>components/org.wso2.carbon.identity.application.authenticator.hypr</module>

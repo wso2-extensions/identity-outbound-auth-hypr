@@ -22,7 +22,7 @@
     <parent>
         <artifactId>identity-outbound-auth-hypr</artifactId>
         <groupId>org.wso2.carbon.identity.outbound.auth.hypr</groupId>
-        <version>1.0.10</version>
+        <version>1.0.11-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
