@@ -18,7 +18,6 @@
 
 package org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.AuthenticationApiService;
 import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.StatusResponse;
 import org.wso2.carbon.identity.application.authenticator.hypr.rest.v1.core.ServerHYPRAuthenticatorService;
@@ -30,8 +29,12 @@ import javax.ws.rs.core.Response;
  */
 public class AuthenticationApiServiceImpl implements AuthenticationApiService {
 
-    @Autowired
-    ServerHYPRAuthenticatorService serverHYPRAuthenticatorService;
+    private final ServerHYPRAuthenticatorService serverHYPRAuthenticatorService;
+
+    public AuthenticationApiServiceImpl() {
+
+        serverHYPRAuthenticatorService = new ServerHYPRAuthenticatorService();
+    }
 
     @Override
     public Response getAuthenticationStatus(String sessionKey) {
