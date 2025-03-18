@@ -33,14 +33,13 @@ Note : The latest project artifacts can also be downloaded from the Connector St
 2. Copy the `org.wso2.carbon.identity.application.authenticator.hypr-1.0.0-SNAPSHOT.jar` file.
 3. Navigate to `<IS_HOME>/repository/components/dropins`.
 4. Paste the `.jar` file into the dropins directory.
-5. Alternatively, it's possible to drag and drop the `.jar` file to the dropins directory.
-6. Next, navigate to `identity-outbound-auth-hypr/components` → 
+5. Next, navigate to `identity-outbound-auth-hypr/components` → 
 `org.wso2.carbon.identity.application.authenticator.hypr.common` → `target`.
-7. Copy the `org.wso2.carbon.identity.application.authenticator.hypr.common-1.0.0-SNAPSHOT.jar` file.
-8. Navigate to `<IS_HOME>/repository/components/lib` directory and paste the `.jar` file.
-9. Navigate to `identity-outbound-auth-hypr/components` → `org.wso2.carbon.identity.application.authenticator.hypr`
+6. Copy the `org.wso2.carbon.identity.application.authenticator.hypr.common-1.0.0-SNAPSHOT.jar` file.
+7. Navigate to `<IS_HOME>/repository/components/lib` directory and paste the `.jar` file.
+8. Navigate to `identity-outbound-auth-hypr/components` → `org.wso2.carbon.identity.application.authenticator.hypr`
    → `src/main/resources/artifacts` and copy the `hypr` directory.
-10. Paste it into `<IS_HOME>/repository/resources/identity/extensions/connections` directory.
+9. Paste it into `<IS_HOME>/repository/resources/identity/extensions/connections` directory.
 
 **Step 3:** Deploying the HYPR REST API
 1. Navigate to `identity-outbound-auth-hypr/components` → `org.wso2.carbon.identity.application.authenticator.hypr.rest` 
@@ -62,11 +61,6 @@ Note : The latest project artifacts can also be downloaded from the Connector St
     enable_tenanted_sessions = "true"
     rewrite.custom_webapps=["/api/hypr/"]
     ```
-
-**Step 4:** Deploying the HYPR login page
-1. Copy `hyprlogin.jsp` in the downloaded artifacts.
-2. Navigate to `<IS_HOME>/repository/deployment/server/webapps` → `authenticationendpoint`.
-3. Paste or drop the `JSP` file in the `authenticationendpoint` directory.
 
 ## The WSO2 console's UI for the HYPR authenticator
 
