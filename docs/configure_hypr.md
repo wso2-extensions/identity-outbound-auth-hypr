@@ -1,13 +1,12 @@
 # Configuring the HYPR 
 
-You need to configure the HYPR environment and have access to the HYPR control center. Learn how to do it in the [HYPR documentation](https://docs.hypr.com/docs/cc/intro-cc){:target="_blank"}.
+You need to configure the HYPR environment and have access to the HYPR control center. Learn how to do it in the [HYPR documentation](https://docs.hypr.com/docs/cc/intro-cc).
 
 ## Register application in HYPR
 
 Follow the steps below to register your application in the HYPR control center.
 
-!!! note
-You can follow the [HYPR documentation](https://docs.hypr.com/docs/cc/ccInstallCfg/ccInstallCfgAppMgmt/cc-install-cfg-app-mgmt-new){:target="_blank"} for detailed instructions.
+> You can follow the [HYPR documentation](https://docs.hypr.com/docs/cc/ccInstallCfg/ccInstallCfgAppMgmt/cc-install-cfg-app-mgmt-new) for detailed instructions.
 
 1. Go to the HYPR control center and click **Add Application**.
 
@@ -19,8 +18,7 @@ You can follow the [HYPR documentation](https://docs.hypr.com/docs/cc/ccInstallC
 
 5. Add your Firebase configurations and click **Next**.
 
-   !!! note
-   To enable push notifications, you need to configure Firebase and obtain a project ID and an API key. To learn how to do this, follow the [guide in HYPR](https://docs.hypr.com/docs/cc/ccInstallCfg/ccInstallCfgAppMgmt/cc-install-cfg-app-mgmt-new-configuring-push-notifications-firebase){:target="_blank"}.
+   > To enable push notifications, you need to configure Firebase and obtain a project ID and an API key. To learn how to do this, follow the [guide in HYPR](https://docs.hypr.com/docs/cc/ccInstallCfg/ccInstallCfgAppMgmt/cc-install-cfg-app-mgmt-new-configuring-push-notifications-firebase).
 
 6. Complete the app details form and click **Done** to create the application.
 
